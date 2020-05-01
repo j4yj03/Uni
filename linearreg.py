@@ -37,10 +37,13 @@ import numpy as np
 #   X_ext  Matrix m x (n+1) der Form [1 X] (numpy.ndarray)
 #
 def extend_matrix(X):
+
     # Anzahl der Zeilen bestimmt die groesse des Stack
-    stack = np.array([[1] for x in range(np.size(X,0))])
+    #stack = np.array([[1] for x in range(np.size(X,0))])
     # Original wird and den Stack geklebt
-    X_ext = np.hstack([stack,X])
+    #X_ext = np.hstack([stack,X])
+
+    X_ext = np.c_[np.ones((np.size(X,0),1)),X]
 
     return X_ext
 
@@ -64,7 +67,12 @@ def extend_matrix(X):
 #   linearen Gleichungssystems
 #
 def LR_fit(X, y):
-    # TODO: berechne theta
+
+    X_ext = extend_matrix(X)
+
+    theta = np.linalg.solve(X_ext.T.dot(X_ext),X_ext.T.dot(y))
+    #theta = np.linalg.inv(X_ext.T.dot(X_ext)).dot(X_ext.T).dot(y) #ueber Inverse nicht optimal
+
     return theta
 
 
@@ -84,7 +92,9 @@ def LR_fit(X, y):
 # Hinweis: Benutzen Sie extend_matrix.
 #
 def LR_predict(X, theta):
-    # TODO: berechne y
+
+    y = extend_matrix(X).dot(theta)
+
     return y
 
 
@@ -105,5 +115,20 @@ def LR_predict(X, theta):
 # Hinweis: Benutzen Sie LR_predict
 #
 def r2_score(X, y, theta):
-    # TODO: berechne r2
+
+    y_pred = LR_predict(X, theta)
+    print(y)
+    print(y_pred)
+    # numerator = ((y - y_pred) ** 2).sum(axis=0, dtype=np.float64)
+    # denominator = ((y - np.average(y, axis=0)) ** 2).sum(axis=0, dtype=np.float64)
+    # r2 = 1 - (numerator/denominator)
+    # print(r2)
+    # correlation_matrix = np.corrcoef(y, y_pred)
+    # correlation_xy = correlation_matrix[0,1]
+    # r_squared = correlation_xy**2
+    # print(r_squared)
+    exp = np.sum((y_pred - y) ** 2)
+    var = np.sum((y - np.mean(y)) ** 2)
+    r2 = 1 - (exp/var)
+    print(r2)
     return r2
