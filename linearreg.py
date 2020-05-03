@@ -117,18 +117,10 @@ def LR_predict(X, theta):
 def r2_score(X, y, theta):
 
     y_pred = LR_predict(X, theta)
-    print(y)
-    print(y_pred)
-    # numerator = ((y - y_pred) ** 2).sum(axis=0, dtype=np.float64)
-    # denominator = ((y - np.average(y, axis=0)) ** 2).sum(axis=0, dtype=np.float64)
-    # r2 = 1 - (numerator/denominator)
-    # print(r2)
-    # correlation_matrix = np.corrcoef(y, y_pred)
-    # correlation_xy = correlation_matrix[0,1]
-    # r_squared = correlation_xy**2
-    # print(r_squared)
-    exp = np.sum((y_pred - y) ** 2)
-    var = np.sum((y - np.mean(y)) ** 2)
-    r2 = 1 - (exp/var)
-    print(r2)
+
+    sqr = np.sum((y - y_pred) ** 2)
+    sqt = np.sum((y - np.mean(y)) ** 2)
+
+    r2 = 1 - (sqr/sqt) if sqt != 0 and sqr!=0 else 0
+
     return r2
