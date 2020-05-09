@@ -52,8 +52,9 @@ from itertools import chain, combinations_with_replacement
 #   X_ext  Matrix m x (n+1) der Form [1 X] (numpy.ndarray)
 #
 def extend_matrix(X):
-
-    X_ext = np.c_[np.ones(np.size(X,0),1),X]
+    #print(X.shape)
+    #print(np.size(X))
+    X_ext = np.c_[np.ones((np.size(X,0),1),dtype=int),X]
 
     return X_ext
 
@@ -159,9 +160,9 @@ def mean_squared_error(y_true, y_pred):
 #
 def Ridge_fit(X, y, alpha):
 
-    IdentityMatrix = np.identity(X.shape[1])
+
     X_ext = extend_matrix(X)
-    
+    IdentityMatrix = np.identity(X_ext.shape[1])
     theta = np.linalg.solve(X_ext.T.dot(X_ext) + alpha * IdentityMatrix, X_ext.T.dot(y))
 
     return theta

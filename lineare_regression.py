@@ -43,7 +43,7 @@ def extend_matrix(X):
     # Original wird and den Stack geklebt
     #X_ext = np.hstack([stack,X])
 
-    X_ext = np.c_[np.ones((np.size(X,0),1)),X]
+    X_ext = np.c_[np.ones((np.size(X,0),1),dtype=int),X]
 
     return X_ext
 
