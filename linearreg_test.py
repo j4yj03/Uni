@@ -4,19 +4,19 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 
-import linearreg as lreg
+import lineare_regression as lreg
 
 
 
 if __name__ == "__main__":
 
     #univariat
-    uni = pd.read_csv("./lineare_regression_daten/univariat.csv", sep=',')
+    uni = pd.read_csv("./data/univariat.csv", sep=',')
     x_u = uni['x'].to_numpy()
     y_u = uni['y'].to_numpy()
 
     #multivariat
-    multi = pd.read_csv("./lineare_regression_daten/multivariat.csv", sep=',')
+    multi = pd.read_csv("./data/multivariat.csv", sep=',')
     # x1_m = multi['x1'].to_numpy()
     # x2_m = multi['x2'].to_numpy()
     X_m = multi.iloc[:,0:2].to_numpy()

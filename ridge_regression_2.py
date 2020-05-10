@@ -24,6 +24,8 @@
 #
 
 import numpy as np
+from itertools import chain, combinations_with_replacement
+import time
 
 #%% extend_matrix (vom letzten Mal verwenden, wird nicht geprüft)
 
@@ -50,8 +52,9 @@ import numpy as np
 #   X_ext  Matrix m x (n+1) der Form [1 X] (numpy.ndarray)
 #
 def extend_matrix(X):
-
-    X_ext = np.c_[np.ones((np.size(X,0),1)),X]
+    #print(X.shape)
+    #print(np.size(X))
+    X_ext = np.c_[np.ones((np.size(X,0),1),dtype=int),X]
 
     return X_ext
 
@@ -79,7 +82,6 @@ def extend_matrix(X):
 def train_test_split(X, y, frac, seed):
 
     m = X.shape[0]
-
     np.random.seed(seed)
     index = np.arange(m)
     np.random.shuffle(index)
@@ -88,7 +90,7 @@ def train_test_split(X, y, frac, seed):
     return X[index[:cut],:], X[index[cut:],:], y[index[:cut]], y[index[cut:]]
 
 
-#%% QuadraticFeatures_fit_transform
+# QuadraticFeatures_fit_transform
 
 # Fügt der Featurematrix quadratische und gemischte Features hinzu
 #
@@ -100,19 +102,19 @@ def train_test_split(X, y, frac, seed):
 #
 # Eingabe:
 #   X      Featurematrix m x n (numpy.ndarray)
-#   degree Polynomengrad (default = 2)
 #
 # Ausgabe
 #   Xq     Featurematrix (m+m*(m+1)/2) x n (numpy.ndarray)
 #
+
 from itertools import chain, combinations_with_replacement
 
 def QuadraticFeatures_fit_transform(X, degree = 2):
-    if isinstance(X, np.ndarray):
-        length = np.size(X,0)
+    if isinstance(X, numpy.ndarray):
         X = X.T
+        length = np.size(X,0)
     else:
-        length = len(X[0])
+        length = len(X)
     #Gemischte Feature Kombinationsmöglichkeiten für jeden Polynomengrad
     combinations = list(chain.from_iterable(combinations_with_replacement(X,i) for i in range(1, degree+1)))
     #leange der Liste entspricht ((m + degree)! / degree! + m! ) - 1
@@ -124,7 +126,31 @@ def QuadraticFeatures_fit_transform(X, degree = 2):
 
     return Xq
 
-# mean_squared_error
+
+
+def QuadraticFeatures_fit_transform(X, degree = 2):
+
+    #Gemischte Feature Kombinationsmöglichkeiten für jeden Polynomengrad
+    combinations = chain.from_iterable(combinations_with_replacement(X.T,i)
+                                                    for i in range(1, degree+1))
+
+    n_rows, n_features = X.shape
+    x = (n_features + n_features * (n_features + 1) / 2)
+
+    length = (np.floor_divide(np.math.factorial(n_features + degree),
+                np.math.factorial(degree) *
+                    np.math.factorial(n_features)))
+
+    print(x,length-1)
+
+    Xq=np.empty([n_rows, length-1])
+    for idx, vector in enumerate(combinations):
+        #Produkt der Kombinationsmöglichkeiten
+        Xq[:,idx] = np.prod(vector, axis=0, dtype=np.double)
+
+
+    return Xq
+#%% mean_squared_error
 
 # Berechnung des mittleren Fehlerquadrats
 #
@@ -140,8 +166,8 @@ def QuadraticFeatures_fit_transform(X, degree = 2):
 def mean_squared_error(y_true, y_pred):
 
     mse = np.mean((y_true - y_pred) ** 2)
-    #mse2 = 1/(len(y_true))*np.sum((y_true - y_pred) ** 2)
-    #print(mse,mse2)
+    #mse = 1/(2*len(y_true))*np.sum((y_true - y_pred) ** 2)
+
     return mse
 
 
@@ -167,27 +193,13 @@ def Ridge_fit(X, y, alpha):
 
 
     X_ext = extend_matrix(X)
-
     IdentityMatrix = np.identity(X_ext.shape[1])
     IdentityMatrix[0][0] = 0
-    #print("a=",alpha," -- ",X_ext.T.dot(X_ext) + alpha * IdentityMatrix)
-    theta = np.linalg.solve(X_ext.T.dot(X_ext) + alpha * IdentityMatrix, X_ext.T.dot(y))
-
-    #print("X shape: {} X_ext shape: {} Identity shape: {} theta shape: {}".format(X.shape,X_ext.shape,IdentityMatrix.shape,theta.shape))
+    #print(IdentityMatrix)
+    theta = np.linalg.solve(X_ext.T.dot(X_ext) + (alpha * IdentityMatrix), X_ext.T.dot(y))
 
     return theta
 
-def Ridge_fit2(X, y, alpha):
-    #assert alpha > 0, "Error: file:" + str(file) + " line: 144"
-    X = extend_matrix(X)
-    M, N = X.shape
-    regular_mx = np.zeros(shape = (N, N))
-    np.fill_diagonal(a = regular_mx[1:,1:], val = 1)
-    xtrans_x = X.T @ X
-    xtrans_y = X.T @ y
-    brackets = xtrans_x + alpha * (regular_mx)
-    theta = np.linalg.solve(brackets, xtrans_y);
-    return theta
 
 #%% Ridge_predict
 

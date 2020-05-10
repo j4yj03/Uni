@@ -6,7 +6,7 @@ from matplotlib import cm
 import matplotlib.gridspec as gridspec
 import seaborn as sns #pip install searborn
 
-import linearreg as lreg
+import lineare_regression as lreg
 
 from sklearn.datasets import load_boston
 

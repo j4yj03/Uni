@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+#from matplotlib.mlab import griddata
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 
@@ -24,7 +25,7 @@ def columnNames(listToExtend, degree):
     combinations =  chain.from_iterable(combinations_with_replacement(listToExtend,i) for i in range(1, degree+1))
 
     for combi in combinations:
-        print(combi)
+        #print(combi)
         for c in combi:
             label=label+str(c)
 
@@ -41,18 +42,18 @@ if __name__ == "__main__":
     pd.options.display.max_rows = None
 
 
-    degree = 10
-    alpha = 0
+    degree = 4
 
     #multi = pd.read_csv("./Uni/data/multivariat.csv", sep=',')
-    #multi = pd.read_csv("./data/multivariat.csv", sep=',')
-    multi = pd.read_csv("./data/univariat.csv", sep=',')
+    multi = pd.read_csv("./data/multivariat.csv", sep=',')
+    #multi = pd.read_csv("./data/univariat.csv", sep=',')
     #multi = multi.sort_values(by=['x'], ascending=True)
     printhead("Dataset",multi,list(multi.columns))
-
     multi_y = multi.pop('y')
-    X_m = multi.to_numpy()[:60]
-    y_m = multi_y.to_numpy()[:600]
+
+
+    X_m = multi.to_numpy()[:80]
+    y_m = multi_y.to_numpy()[:80]
 
     # m = 1000
     # X_m = 6*np.random.rand(m,1)-3
@@ -69,63 +70,50 @@ if __name__ == "__main__":
     X_m_train, X_m_test, y_m_train, y_m_test = ridge.train_test_split(X_m, y_m, 0.6, 0)
     X_m_test, X_m_val, y_m_test, y_m_val = ridge.train_test_split(X_m_test, y_m_test, 0.5, 0)
     X_m_2_train, X_m_2_test, y_m_2_train, y_m_2_test = ridge.train_test_split(X_m_2, y_m, 0.6, 0)
-    X_m_2_test, X_m_2_val, y_m_2_test, y_m_2_val = ridge.train_test_split(X_m_2_test, y_m_2_test, 0.5, 0)
+    X_m_2_test_2, X_m_2_val, y_m_2_test_2, y_m_2_val = ridge.train_test_split(X_m_2_test, y_m_2_test, 0.5, 0)
 
-    printhead("Trainingsdaten",X_m_2_train,lab)
-    printhead("Testdaten",X_m_2_test,lab)
-    printhead("Validierungsdaten",X_m_2_val,lab)
+    #printhead("Trainingsdaten",X_m_2_train,lab)
+    #printhead("Testdaten",X_m_2_test,lab)
+    #printhead("Validierungsdaten",X_m_2_val,lab)
+
 
     legend=[]
     X= X_m_2_val
     y =y_m_2_val
     #plot
-    fig = plt.figure(figsize=(11,9))
-
-    plt.xlabel('x')
-    plt.ylim(min(y_m_train)-0.05,max(y_m_train)+0.05)
-    plt.ylabel('y')
-    plt.xlim(min(X_m_train)-0.05,max(X_m_train)+0.05)
-    plt.scatter(X_m_train, y_m_train, c='white', edgecolors='black')
 
     #plt.plot(X_m_val, y_pred_lin)
+
     r2_score_ridge =[]
     mse_ridge = []
     cost = []
     theta_ridge = []
     fx = []
     alpha = []
-    
-    for i,a in enumerate([0., 0.05, 0.5, 5]):
-        alpha.append(a)
-        #THETA berechnen
 
+    #print(X_m_2.shape)
+
+    for i,a in enumerate([0.,4,40,20000,40000]):#
+        alpha.append(a)
+        #print(X_m_2.shape)
+        #THETA berechnen
         theta_ridge.append(ridge.Ridge_fit(X_m_2_train,y_m_train, alpha[i]))
-        print("Parameter: ",theta_ridge[i]," test2: ",ridge.Ridge_fit2(X_m_2_train,y_m_train, alpha[i]))
+        #print("Parameter: ",theta_ridge[i]," test2: ", ridge.Ridge_fit2(X_m_2_train,y_m_train, alpha[i]))
 
         X_p = np.linspace(0,10,1000)
+        #y_p = np.poly1d(np.flip(theta_ridge)[:,0])
         fx.append(np.poly1d(np.flip(theta_ridge[i])))
         #print(fx[i])
+        #predict
         y_pred_ridge = ridge.Ridge_predict(X, theta_ridge[i])
         y_pred_lin = fx[i](X_p)
-        #y_pred_ridge = ridge.Ridge_predict(X_m_2_val, theta_ridge)
 
-        # for x,y in zip(X_m_2_val,y_pred_ridge):
-        #     print("x={} y={}".format(x,y))
-
-        # r2 score
         r2_score_ridge.append(ridge.r2_score(y, y_pred_ridge))
-        # mse
         mse_ridge.append(ridge.mean_squared_error(y, y_pred_ridge))
-        # cost
+
         cost.append(mse_ridge[i] + alpha[i] * np.sum(theta_ridge[i] ** 2, initial=1))
 
-
-        plt.scatter(X[:,0], y, color='black', edgecolors='white')
-        plt.scatter(X[:,0], y_pred_ridge, edgecolors='black')
-        plt.plot(X_p,y_pred_lin)
-        legend.append('alpha={0:.2E} -> R2={1:.4E}'.format(float(alpha[i]),float(r2_score_ridge[i])))
-
-        #endloop
+        #plt.title('Bestimmtheitsmaß {0:.5f}'.format(r2_score_lin))
 
     data = {'theta': theta_ridge
             ,'mse':  mse_ridge
@@ -134,17 +122,37 @@ if __name__ == "__main__":
             ,'f(x)':  fx
             ,'alpha': alpha
             }
+    #print(r2_score_ridge, mse_ridge, cost, theta_ridge ,fx)
 
     df = pd.DataFrame(data)
     df = df.nlargest(1,['R2_score'])
-    print("\n\n f(x) = {}\n\n with R2 Score = {}\n\n".format(df['f(x)'].values[0],df['R2_score'].values[0]))
+    print(df)
 
+    # plot
+    resolution = 0.25
 
-    plt.title('theta_best = {}'.format(df['theta'].values[0]))
-    legend.append('training point')
-    legend.append('unknown point')
-    plt.legend(legend,bbox_to_anchor=(0, 1), loc='upper left', ncol=1)
+    fig = plt.figure(figsize=(11,9))
 
+    X,Y = np.meshgrid(np.arange(0, 10, resolution), np.arange(0, 10, resolution))
+    #print(X.shape,Y.shape)
+
+    XX = X.flatten()
+    YY = Y.flatten()
+
+    theta = df['theta'].values[0]
+    #print(theta)
+
+    YYXX = ridge.QuadraticFeatures_fit_transform([XX, YY],degree)
+    #print(YYXX.shape)
+
+    Z = ridge.Ridge_predict(YYXX, theta)
+
+    ax = Axes3D(fig)
+
+    cset = ax.plot_surface(X, Y, Z.reshape(X.shape), rstride=1, cstride=1, alpha=0.7, cmap=cm.summer)
+
+    fig.colorbar(cset, shrink=0.5, aspect=5)
+    cset = ax.scatter(X_m[:,0],X_m[:,1], y_m, c='r', edgecolors='black')
+    ax.clabel(cset, fontsize=9, inline=1)
+    ax.set_title('X**{0:}:  alpha={1:.2E} -> R2={2:.4E}'.format(degree, df['alpha'].values[0], df['R2_score'].values[0]))
     plt.show()
-
-    #endscript
