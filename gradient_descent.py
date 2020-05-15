@@ -124,6 +124,36 @@ def LR_gradient_descent(X, y, theta0, nmax=1000000, eta=0.0005):
     J = np.mean(loss**2)
 
     return theta, J
+
+def LR_gradient_descent_hist(X, y, theta0, nmax=1000000, eta=0.0005):
+    assert eta > 0, 'eta kleiner 0'
+    theta=theta0
+
+    thetas = []
+    preds = []
+    costs = []
+    counter = 0
+    for i in range(nmax):
+        #differenz zwischen y und h(theta) ermitteln
+        y_pred = Ridge_predict(X, theta)
+        loss = (y_pred - y)
+        cost = np.mean(loss**2)
+        # Vektor der Ableitungen (Gradientenvektor)
+        gradient = extend_matrix(X).T.dot(loss)
+        #theta um eta in richtung des gradientenabstieges anpassen
+        theta = theta - eta/len(y) * gradient
+
+        thetas.append(theta)
+        preds.append(y_pred)
+        costs.append(cost)
+        counter = i
+        #print(len(thetas))
+        if len(thetas)> 10:
+            if np.all(thetas[i-10] == theta):
+                print('GD converged!')
+                break
+
+    return thetas, costs, preds, counter
 #
 # def LR_gradient_descent2(X, y, theta0, nmax=1000000, eta=0.0001):
 #     # TODO: berechne theta, J

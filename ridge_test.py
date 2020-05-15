@@ -41,7 +41,7 @@ if __name__ == "__main__":
     pd.options.display.max_rows = None
 
 
-    degree = 10
+    degree = 2
     alpha = 0
 
     #multi = pd.read_csv("./Uni/data/multivariat.csv", sep=',')
@@ -94,7 +94,7 @@ if __name__ == "__main__":
     theta_ridge = []
     fx = []
     alpha = []
-    
+
     for i,a in enumerate([0., 0.05, 0.5, 5]):
         alpha.append(a)
         #THETA berechnen

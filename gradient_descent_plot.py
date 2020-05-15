@@ -1,6 +1,6 @@
 #code adapted from http://tillbergmann.com/blog/python-gradient-descent.html
 
-%matplotlib inline
+#%matplotlib inline
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -56,6 +56,8 @@ def gradient_descent(x, y, theta_init, step=0.001, maxsteps=0, precision=0.001, 
                 break
 
     return history, costs, preds, counter
+
+
 xaug = np.c_[np.ones(x.shape[0]), x]
 theta_i = [-15, 40] + np.random.rand(2)
 history, cost, preds, iters = gradient_descent(xaug, y, theta_i, step=0.1)
@@ -97,4 +99,5 @@ ax.plot([t[0] for t in history], [t[1] for t in history], cost , markerfacecolor
 ax.plot([t[0] for t in history], [t[1] for t in history], 0 , markerfacecolor='r', markeredgecolor='r', marker='.', markersize=2)
 
 fig.suptitle("Minimizando f(x1,x2)", fontsize=24, fontweight='bold')
-plt.savefig("Minimization_image.png")
+#plt.savefig("Minimization_image.png")
+plt.show()

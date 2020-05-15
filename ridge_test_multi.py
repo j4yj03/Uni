@@ -123,7 +123,6 @@ if __name__ == "__main__":
             ,'alpha': alpha
             }
     #print(r2_score_ridge, mse_ridge, cost, theta_ridge ,fx)
-
     df = pd.DataFrame(data)
     df = df.nlargest(1,['R2_score'])
     print(df)
@@ -140,7 +139,7 @@ if __name__ == "__main__":
     YY = Y.flatten()
 
     theta = df['theta'].values[0]
-    #print(theta)
+    print(theta)
 
     YYXX = ridge.QuadraticFeatures_fit_transform([XX, YY],degree)
     #print(YYXX.shape)
