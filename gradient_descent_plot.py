@@ -12,7 +12,7 @@ from sklearn.datasets.samples_generator import make_regression
 
 
 x, y = make_regression(n_samples = 100,
-                       n_features=1,
+                       n_features=2,
                        n_informative=1,
                        noise=20,
                        random_state=2017)

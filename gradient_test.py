@@ -8,19 +8,25 @@ import lineare_regression as lreg
 import gradient_descent as gd
 import ridge_regression as ridge
 
+degree = 2
+
+
+# In[92]:
+
+
 if __name__ == "__main__":
 
     #univariat
-    uni = pd.read_csv("./data/univariat.csv", sep=',')
-    x_u = uni['x'].to_numpy()
-    y_u = uni['y'].to_numpy()
+    #uni = pd.read_csv("./data/univariat.csv", sep=',')
+    #x_u = uni['x'].to_numpy()
+    #y_u = uni['y'].to_numpy()
 
     #multivariat
     multi = pd.read_csv("./data/multivariat.csv", sep=',')
     # x1_m = multi['x1'].to_numpy()
     # x2_m = multi['x2'].to_numpy()
-    X_m = multi.iloc[:,0:2].to_numpy()
-    y_m = multi['y'].to_numpy()
+    X_m = multi.iloc[:,0:2].to_numpy()[:50]
+    y_m = multi['y'].to_numpy()[:50]
 
     #print(f'{X_m} {y_m}')
 
@@ -32,12 +38,24 @@ if __name__ == "__main__":
 
     print(f'ym: mean={mean} std={std}')
 
-    X_m_2 = ridge.QuadraticFeatures_fit_transform(X_m, 2)
-    mean, std = gd.StandardScaler_fit(X_m_2)
-    Xs2 = gd.StandardScaler_transform(X_m_2, mean, std)
+
+    mean, std = gd.StandardScaler_fit(X_m)
+    Xs = gd.StandardScaler_transform(X_m, mean, std)
+    Xm2 = ridge.QuadraticFeatures_fit_transform(X_m, degree)
+    Xs2 = ridge.QuadraticFeatures_fit_transform(Xs, degree)
+
     print(f'Xm: mean={mean} std={std}')
 
-    #print(f'{Xs}')
+    m = np.size(X_m,1)
+    n = (np.floor_divide(np.math.factorial(m + degree),
+                np.math.factorial(degree) *
+                    np.math.factorial(m)))
+
+
+
+    theta0 = np.ones(n)
+    print(f'Startvektor: {theta0}')
+
     theta_ridge = ridge.Ridge_fit(Xs2 ,ys, 0)
 
     print(f'\ntheta_normal:{theta_ridge}\n')

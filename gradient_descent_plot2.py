@@ -72,15 +72,13 @@ if __name__ == "__main__":
                     np.math.factorial(m)))
 
 
+    # theta0 initialisieren
+    #theta0 = np.zeros(n)
+    #theta0 = np.ones(n)
+    theta0 = np.random.rand(n)
 
-    theta0 = np.ones(n)
     print(f'Startvektor: {theta0}')
 
-
-# In[ ]:
-
-
-#print(f'{Xs}')
     theta_ridge = ridge.Ridge_fit(Xs2 ,ys, 0)
 
     print(f'\ntheta_normal:{theta_ridge}\n')
@@ -124,6 +122,7 @@ if __name__ == "__main__":
         else:
             YYXX[:,ind] = np.prod(vector, axis=0, dtype=np.double)
 
+    #YYXX[-1] = theta
     error_mesh = []
     for th in YYXX:
         e = error(Xs2, ys, th)
@@ -146,9 +145,13 @@ if __name__ == "__main__":
     ax.clabel(cset, fontsize=9, inline=1)
 
     costs_norm = (costs[:]-np.min(costs, axis=0))/np.ptp(zs, axis=0)
+    for theta, cost in zip(thetas, costs):
+        print(theta,cost)
     #print(thetas)
-    ax.plot([t[0] for t in thetas], [t[1] for t in thetas], costs_norm   , marker='.', markersize=2)
-
+    ax.plot([t[0] for t in thetas], [t[1] for t in thetas], costs_norm   , marker='.', markersize=1)
+    #ax.plot([t[0] for t in thetas], [t[1] for t in thetas], 0 ,marker='.', markersize=2)
+    # for i in range(n):
+    #     ax.plot([t[i] for t in thetas], [t[(i+1)%n] for t in thetas], costs_norm   , marker='.', markersize=2)
 
     ax.set_xlabel('theta0', labelpad=3, fontsize=12,)
     ax.set_ylabel('theta1', labelpad=3, fontsize=12,)

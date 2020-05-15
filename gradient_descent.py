@@ -109,7 +109,7 @@ def Ridge_predict(X, theta):
 #   theta   Aktueller Vektor der Länge n+1 der optimalen Parameter (numpy.ndarray)
 #   J       Aktueller Wert der Kostenfunktion (float)
 #
-def LR_gradient_descent(X, y, theta0, nmax=1000000, eta=0.0005):
+def LR_gradient_descent(X, y, theta0, nmax=100, eta=0.0005):
     assert eta > 0, 'eta kleiner 0'
     theta=theta0
 
@@ -125,7 +125,7 @@ def LR_gradient_descent(X, y, theta0, nmax=1000000, eta=0.0005):
 
     return theta, J
 
-def LR_gradient_descent_hist(X, y, theta0, nmax=1000000, eta=0.0005):
+def LR_gradient_descent_hist(X, y, theta0, nmax=100000, eta=0.0001):
     assert eta > 0, 'eta kleiner 0'
     theta=theta0
 
@@ -149,7 +149,7 @@ def LR_gradient_descent_hist(X, y, theta0, nmax=1000000, eta=0.0005):
         counter = i
         #print(len(thetas))
         if len(thetas)> 10:
-            if np.all(thetas[i-10] == theta):
+            if np.all(costs[-4:] == cost):
                 print('GD converged!')
                 break
 
