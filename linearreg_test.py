@@ -25,6 +25,7 @@ if __name__ == "__main__":
     #print(X_m.shape,y_m.shape)
     #print(x2,x2.shape)
     theta_u = lreg.LR_fit(x_u, y_u)
+    print(theta_u)
     r2_score_u = lreg.r2_score(x_u, y_u, theta_u)
     predict_u = lreg.LR_predict(np.linspace(-1,10,10), theta_u)
     theta_m = lreg.LR_fit(X_m, y_m)

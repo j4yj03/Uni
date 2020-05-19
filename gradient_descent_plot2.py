@@ -28,7 +28,7 @@ def error(X, Y, THETA):
 # In[91]:
 
 
-degree = 3
+degree = 2
 
 
 # In[92]:
@@ -45,8 +45,8 @@ if __name__ == "__main__":
     multi = pd.read_csv("./data/multivariat.csv", sep=',')
     # x1_m = multi['x1'].to_numpy()
     # x2_m = multi['x2'].to_numpy()
-    X_m = multi.iloc[:,0:2].to_numpy()[:200]
-    y_m = multi['y'].to_numpy()[:200]
+    X_m = multi.iloc[:,0:2].to_numpy()[:40]
+    y_m = multi['y'].to_numpy()[:40]
 
     #print(f'{X_m} {y_m}')
 
@@ -94,7 +94,7 @@ if __name__ == "__main__":
 
     print(f'\n\ndifference: {theta_ridge-theta!s}')#' {np.mean(theta_ridge-theta)!s}\n')
 
-    resolution = 0.033
+    resolution = 0.066
     print(len(thetas))
     fig = plt.figure(figsize=(11,9))
 
@@ -139,19 +139,23 @@ if __name__ == "__main__":
     Z = zs_norm.reshape(XX.shape)
 
     ax = Axes3D(fig)
+    print(f'{Z.shape}{X.shape}{Y.shape}')
 
     cset = ax.plot_surface(X, Y, Z.reshape(X.shape), rstride=1, cstride=1, alpha=0.5, cmap=cm.winter)
+    #ax.plot(X[np.where(np.min(zs))][0], Y[np.where(np.min(zs))][0], np.min(zs_norm), marker='.', markersize=3)
 
     fig.colorbar(cset, shrink=0.5, aspect=5)
     #cset = ax.scatter(X_m[:,0],X_m[:,1], y_m, c='r', edgecolors='black')
     ax.clabel(cset, fontsize=9, inline=1)
 
-    costs_norm = (costs[:]-np.min(costs, axis=0))/np.ptp(zs, axis=0)
-    # for theta, cost in zip(thetas, costs):
-    #     print(theta,cost)
+    costs_norm = (costs-np.min(costs, axis=0))/np.ptp(zs, axis=0)
+
+    # for theta, cost in zip([thetas[-1]], [costs[-1]]):
+    #      print(theta,cost)
     #print(thetas)
+    ax.plot([t[1] for t in [thetas[-1]]], [t[2] for t in [thetas[-1]]], [costs_norm[-1]] , markerfacecolor='r', markeredgecolor='r', marker='o', markersize=7)
     ax.plot([t[1] for t in thetas], [t[2] for t in thetas], costs_norm   , marker='.', markersize=1)
-    #ax.plot([t[0] for t in thetas], [t[1] for t in thetas], 0 ,marker='.', markersize=2)
+    #ax.plot([t[1] for t in thetas], [t[2] for t in thetas], 0 ,marker='.', markersize=2)
     #for i in range(n):
         #ax.plot([t[i] for t in thetas], [t[(i+1)%n] for t in thetas], costs_norm   , marker='.', markersize=2)
 
@@ -159,7 +163,7 @@ if __name__ == "__main__":
     ax.set_ylabel('theta1', labelpad=3, fontsize=12,)
     ax.set_zlabel('cost', labelpad=3, fontsize=12)
     #ax.set_zlim(0,np.max(costs_norm)+0.05)
-    ax.view_init(elev=0., azim=0)
+    ax.view_init(elev=0., azim=180)
     #ax.set_title('X**{0:}:  alpha={1:.2E} -> R2={2:.4E}'.format(degree, df['alpha'].values[0], df['R2_score'].values[0]))
     plt.show()
 

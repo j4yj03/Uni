@@ -170,7 +170,7 @@ def Ridge_fit(X, y, alpha):
 
     IdentityMatrix = np.identity(X_ext.shape[1])
     IdentityMatrix[0][0] = 0
-    #print("a=",alpha," -- ",X_ext.T.dot(X_ext) + alpha * IdentityMatrix)
+    print("a=",alpha," -- ",X_ext.T.dot(X_ext) + alpha * IdentityMatrix)
     theta = np.linalg.solve(X_ext.T.dot(X_ext) + alpha * IdentityMatrix, X_ext.T.dot(y))
 
     #print("X shape: {} X_ext shape: {} Identity shape: {} theta shape: {}".format(X.shape,X_ext.shape,IdentityMatrix.shape,theta.shape))

@@ -82,8 +82,8 @@ def StandardScaler_fit(X):
 def StandardScaler_transform(X, mean, std):
     # TODO: Berechne Xs
 
-    Xs=(X[:,:]-mean[:])/std[:] if X.ndim > 1 else (X[:]-mean)/std
-
+    #Xs=(X[:,:]-mean[:])/std[:] if X.ndim > 1 else (X[:]-mean)/std
+    Xs = (X-mean)/(std)
     return Xs
 
 def Ridge_predict(X, theta):
@@ -109,7 +109,7 @@ def Ridge_predict(X, theta):
 #   theta   Aktueller Vektor der Länge n+1 der optimalen Parameter (numpy.ndarray)
 #   J       Aktueller Wert der Kostenfunktion (float)
 #
-def LR_gradient_descent(X, y, theta0, nmax=100, eta=0.0005):
+def LR_gradient_descent(X, y, theta0, nmax=10000, eta=0.01):
     assert eta > 0, 'eta kleiner 0'
     theta=theta0
 
@@ -117,13 +117,55 @@ def LR_gradient_descent(X, y, theta0, nmax=100, eta=0.0005):
         #differenz zwischen y und h(theta) ermitteln
         loss = (Ridge_predict(X, theta) - y)
         # Vektor der Ableitungen (Gradientenvektor)
-        gradient = extend_matrix(X).T.dot(loss)
+        gradient = 1/len(y) * extend_matrix(X).T.dot(loss)
         #theta um eta in richtung des gradientenabstieges anpassen
-        theta = theta - eta/len(y) * gradient
+        theta = theta - eta * gradient
     #kosten
     J = np.mean(loss**2)
 
     return theta, J
+
+
+def LR_gradient_descent_hist2(X, y, theta0, nmax=100000, eta=0.01):
+    assert eta > 0, 'eta kleiner 0'
+    theta=theta0
+
+    thetas = []
+    preds = []
+    costs = []
+    counter = 0
+    for i in range(nmax):
+        #differenz zwischen y und h(theta) ermitteln
+        for j in range(len(y)):
+            #differenz zwischen y und h(theta) ermitteln
+
+            Xext = np.hstack([1,X[j]])
+            #print("extended: ",Xext)
+            loss = (theta.T.dot(Xext) - y[j])
+            cost = np.mean(loss**2)
+            #print("loss: ",loss)
+            #gradient = 1/len(y) * np.gradient(min(cost))
+            gradient= 1/len(y) * loss * Xext
+            #print(counter, gradient)
+            #print("gradient: ",gradient)
+            # Vektor der Ableitungen (Gradientenvektor)
+            #gradient = 1//len(y) * extend_matrix(X).T.dot(loss)
+            #theta um eta in richtung des gradientenabstieges anpassen
+            theta = theta - eta * gradient
+
+            thetas.append(theta)
+            #preds.append(y_pred)
+            costs.append(cost)
+
+
+            if len(thetas)> 10:
+                if np.all(costs[-4:] == cost):
+                    print('GD converged!')
+                    break
+        counter = i
+        #print(counter)
+
+    return thetas, costs#, preds, counter
 
 def LR_gradient_descent_hist(X, y, theta0, nmax=100000, eta=0.0001):
     assert eta > 0, 'eta kleiner 0'

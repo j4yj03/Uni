@@ -25,8 +25,8 @@ if __name__ == "__main__":
     multi = pd.read_csv("./data/multivariat.csv", sep=',')
     # x1_m = multi['x1'].to_numpy()
     # x2_m = multi['x2'].to_numpy()
-    X_m = multi.iloc[:,0:2].to_numpy()[:50]
-    y_m = multi['y'].to_numpy()[:50]
+    X_m = multi.iloc[:,0:2].to_numpy()[:500]
+    y_m = multi['y'].to_numpy()[:500]
 
     #print(f'{X_m} {y_m}')
 
@@ -62,10 +62,13 @@ if __name__ == "__main__":
 
     theta0 = np.zeros(6)
     theta , J = gd.LR_gradient_descent(Xs2,ys,theta0)
+    print(f'\ntheta_gradient: {theta}\n')
+    print(f'\n\ndifference: {theta_ridge-theta!s}')#' {np.mean(theta_ridge-theta)!s}\n')
+    thetas , Js = gd.LR_gradient_descent_hist2(Xs2,ys,theta0)
     #theta2 , J2 = gd.LR_gradient_descent2(Xs2,ys,theta0)
 
-    print(f'\ntheta_gradient: {theta}\n')
+    print(f'\ntheta_gradient2: {thetas[-1]}\n')
     #rint(theta2, J2)
-    print(f'\n\ndifference: {theta_ridge-theta!s}')#' {np.mean(theta_ridge-theta)!s}\n')
+    print(f'\n\ndifference gradients: {theta-thetas[-1]!s}')#' {np.mean(theta_ridge-theta)!s}\n')
 
     #print(f'{theta}')

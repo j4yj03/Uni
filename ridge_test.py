@@ -41,7 +41,7 @@ if __name__ == "__main__":
     pd.options.display.max_rows = None
 
 
-    degree = 2
+    degree = 1
     alpha = 0
 
     #multi = pd.read_csv("./Uni/data/multivariat.csv", sep=',')
@@ -52,13 +52,14 @@ if __name__ == "__main__":
 
     multi_y = multi.pop('y')
     X_m = multi.to_numpy()[:60]
-    y_m = multi_y.to_numpy()[:600]
+    y_m = multi_y.to_numpy()[:60]
 
     # m = 1000
     # X_m = 6*np.random.rand(m,1)-3
     # y_m = 0.5 * X_m**2 + X_m + 2 + np.random.randn(m,1)
 
     X_m_2 = ridge.QuadraticFeatures_fit_transform(X_m,degree)
+    print(np.shape(X_m),'-->',np.shape(X_m_2))
 
 
     lab = columnNames(list(multi.columns),degree)

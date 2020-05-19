@@ -52,8 +52,8 @@ if __name__ == "__main__":
     multi_y = multi.pop('y')
 
 
-    X_m = multi.to_numpy()[:80]
-    y_m = multi_y.to_numpy()[:80]
+    X_m = multi.to_numpy()#[:80]
+    y_m = multi_y.to_numpy()#[:80]
 
     # m = 1000
     # X_m = 6*np.random.rand(m,1)-3
