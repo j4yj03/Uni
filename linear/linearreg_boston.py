@@ -109,7 +109,7 @@ def linear(degree=[1], alpha=[0], size=[100]):
     theta_ridge = []
     fx = []
     legend = []
-    #123
+    #12345
     hyperparameter = list(product(degree, alpha, size))
     #hyperparameter = [[1,600,200],[2,45339,405]]#,[3,8000000,200]]
 
