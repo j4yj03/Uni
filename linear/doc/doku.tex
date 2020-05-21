@@ -1,0 +1,395 @@
+\documentclass[11pt,a4paper,oneside,ngerman]{report}
+\usepackage[ngerman]{babel} 
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[acronym,automake,toc]{glossaries}
+\usepackage{fancyhdr}
+\usepackage{blindtext}      % Blindtext zum Testen von Textausgaben
+\usepackage{mathtools}
+\usepackage[euler]{textgreek}
+\usepackage{fixltx2e}
+\usepackage{siunitx}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{color} %red, green, blue, yellow, cyan, magenta, black, white
+\usepackage{graphicx}
+\usepackage{titlesec}
+
+
+\definecolor{mygreen}{RGB}{34,139,34} % color values Red, Green, Blue
+\definecolor{mylilas}{RGB}{170,55,241}
+\definecolor{gray75}{gray}{0.75}
+
+\newcommand{\hsp}{\hspace{20pt}}
+
+\titleformat{\chapter}[hang]{\Huge\bfseries}{\thechapter\hsp\textcolor{gray75}{|}\hsp}{0pt}{\Huge\bfseries}
+\titleformat*{\section}{\large\bfseries}
+\titleformat*{\subsection}{\normalfont\bfseries}
+\titleformat*{\subsubsection}{\normalfont\bfseries}
+\titleformat*{\paragraph}{\large\bfseries}
+\titleformat*{\subparagraph}{\large\bfseries}
+
+
+
+%%========================================
+\title{Lineare Regression}
+\author{Sidney Goehler (544131)}
+\date{\today}
+%
+% Turn on the style
+\pagestyle{headings}
+
+
+\makeglossaries
+
+
+\newglossaryentry{duck}{name=duck,%
+  description={a waterbird with webbed feet}}
+
+\newglossaryentry{parrot}{name=parrot,%
+  description={mainly tropical bird with bright plumage}}
+
+
+\begin{document}
+
+\sisetup{tight-spacing=true}
+\lstset{language=Matlab,%
+    %basicstyle=\color{red},
+    breaklines=false,%
+    morekeywords={matlab2tikz},
+    keywordstyle=\color{blue},%
+    morekeywords=[2]{1}, keywordstyle=[2]{\color{black}},
+    identifierstyle=\color{black},%
+    stringstyle=\color{mylilas},
+    commentstyle=\color{mygreen},%
+    showstringspaces=false,%without this there will be a symbol in the places where there is a space
+    numbers=left,%
+    numberstyle={\tiny \color{black}},% size of the numbers
+    numbersep=9pt, % this defines how far the numbers are from the text
+    emph=[1]{for,end,break},emphstyle=[1]\color{blue}, %some words to emphasise
+    %emph=[2]{word1,word2}, emphstyle=[2]{style},    
+}
+
+\maketitle
+%%===============================================================
+\thispagestyle{headings}
+\chapter*{Einleitung}
+%%===============================================================
+\thispagestyle{headings}
+Diese Dokumentation ist Teil der Laborübung XYZ.
+
+
+\begingroup\let\clearpage\relax
+\tableofcontents \endgroup
+
+
+\chapter{Einführung}
+%%===============================================================
+\thispagestyle{headings}
+Dieses Kapitel gibt allgemeine Informationen.
+
+
+\chapter{Aufgabe 1}
+\thispagestyle{headings}
+Bearbeitung A1
+
+
+
+
+
+
+
+
+
+
+
+%%==============================================================
+
+%\section{Was bedeuten die folgenden MATLAB Funktionen: transpose (') , colon
+%(:), length, size, min, max, abs. Sind diese auch für Vektoren oder Matrizen benutzbar?}
+%\begin{itemize}
+%\item \textbf{transpose} Die Funktion \textit{transpose} vertauscht die Dimensionen eines Vektors. Aus einem 2x5 Vektor wird ein 5x2 Vektor
+%\item \textbf{colon} Die Funktion \textit{colon} erzeugt einen Vektor x mit den Dimensionen a:b 
+%\item \textbf{length} Die Funktion \textit{length} ermittelt die länge der größten Arraydimension
+%\item \textbf{size} Die Funktion \textit{size} ermittelt die länge der einzelnen Dimensionen einer Matrix
+%\item \textbf{min} Die Funktion \textit{min} gibt den kleinsten Wert in einem Array aus
+%\item \textbf{max} Die Funktion \textit{max} gibt den größten Wert in einem Array aus
+%\item \textbf{abs} Die Funktion \textit{abs} ermittelt den Betrag und die komplexe Größe der Werte in einem Vektor
+%\end{itemize}
+%
+%
+%	
+%\section{Was bedeuten die Operatoren .* oder ./ ?}
+%Der Punktoperator ermöglicht eine elementweise Berechnung zwischen zwei Vektoren. Alternativ kann man auch die Funktion \textit{bsxfun} verwenden.
+%
+%\section{Wie definiert man einen linear ansteigenden / absteigenden Vektor?}
+%Dafür gibt es die Funktion \textit{linspace}, welche einen Vektor erstellt, der in einem definierbaren Intervall ansteigt.
+%
+%\section{Welche Möglichkeiten gibt es in MATLAB Teile eines Vektors zu indizieren?}
+%In MATLAB kann man mit den eckigen Klammern [ Vektoren indizieren.
+%
+%\section{Wie definiert man Kommentare in einem Skript?}
+%Kommentare werden in MATLAB mit dem Prozentzeichen \% gekennzeichnet und sind normalerweise grün eingefärbt. In neueren MATLAB Versionen kennzeichnet ein doppeltes Prozentzeichen \%\% einen Abschnitt.
+%
+%\section{Was bedeutet ein Semikolon nach einer Anweisung?}
+%Das Semikolon ; unterdrückt die Ausgabe des Rückgabewertes in der Konsole.
+%
+%\section{Welche Strukturelemente gibt es?}
+%In MATLAB gibt es im wesentlichen folgende Strukturelemente:
+%\begin{itemize} 
+%\item \textbf{Kommandos}
+%sind Ausdrücke, welche in der Konsole verwendet werden können. Dazu zählen \textit{Variablen, Funktionen, Operatoren, \dots}
+%\item \textbf{Datentypen}
+%MATLAB operiert mit speziellen Datentypen, wobei zwischen \textit{double, sparse, uint8, char, cell, struct} und als wichtigster Datentyp, das numerische, zweidimensionale doppeltgenaue Feld: die \textit{Matrix}, unterschieden wird
+%\item \textbf{Funktionen}
+%durch die sich komplexe Programmabläufe mit Parameterubergabe, globalen und lokalen Variablen und Unterprogrammen realisieren lassen
+%\item \textbf{Grafiken}
+%MATLAB enthält sehr viele Funktionen zur Darstellung zweidimensionaler (2D) und dreidimensionaler (3D) Daten. Diese sind in ihrer Basisfunktionalität sehr einfach auf als Vektoren oder Matrizen vorliegende Daten anzuwenden
+%\item \textbf{Indexe}
+%Auf definierte Daten (z.B. Marixelemente) wird mit Hilfe der Indexierung zugegriffen, was dazu genutzt werden kann, um komplizierte Matrixoperationen zu vektorisieren oder mit Hilfe logischer Eigenschaften Teile einer Matrix zu selektieren.
+%\end{itemize}
+%\hfill
+%\newline\newline
+%\subsection{Skript linearerVektor}
+%\lstinputlisting{linearerVektor.m} 
+%\begin{lstlisting} 
+%\end{lstlisting}
+%
+%
+%\section{Wie können Sie eigene Funktionen definieren?}
+%Eigene Funktionen können mit dem Schlüsselwort \textit{function} definiert werden. Man muss der Funktionen einen Namen geben und hat die Möglichkeit Eingabe- und Ausgabeparameter zu definieren. Um die Funktionsweise einer Funktion zu beschreiben eignen sich Kommentare am Anfange der Funktion, da diese mit aufgeführt werden, wenn man die Hilfe (F1) aufruft.
+%\subsection{Funktion quadMittel}
+%\lstinputlisting{quadMittel.m} 
+%\begin{lstlisting}
+%\end{lstlisting}
+%
+%
+%\chapter{Sender}
+%%%===============================================================
+%\thispagestyle{headings}
+%Dieses Kapitel befasst sich mit der Erzeugung der Sendesignale im Funkkanal. Damit etwas versendet werden kann, benötigt der Sender zunächst einmal ein Nutzsignal. Dieses kann eine zufällig erzeugte Bitfolge sein.
+%\section{Welche Möglichkeiten gibt es in MATLAB zufällige Werte zu erzeugen? Wie sind diese Werte verteilt und welche Verteilung ist bei der Erzeugung von Bits sinnvoll?}
+%In MATLAB hat man unter anderen mit den Funktionen \textit{rand, randi, randn}, wobei \textit{rand} und \textit{randi} normal verteilte Zufallszahlen generieren, \textit{randn} hingegen gaußverteilte Zufallszahlen. Für die Erzeugung von zufälligen Bits ist eine normal Verteilte Zufallsfunktion angemessener.
+%\newline\\
+%Damit die Daten über den Funkkanal verschickt werden können muss das Nutzsignal im Basisband anschließend  moduliert werden. 
+%Dafür existieren verschiedene Modulationsverfahren, welche aus der Bitfolge ein von Sinus- und Kosinusschwingungen zusammengesetztes Signal erzeugen und auf eine Trägerfrequenz multipliziert. Dies tut man,  da sich die niedrigen Frequenzen eines Basisbandsignals meistens schwer oder gar nicht per Funk übertragen lassen.
+%Diese zusammengesetzte Bandpasssignale können dann über verschiedene Frequenzbänder versendet, und am Empfänger wieder gegen die entsprechende Trägerfrequenz rekonstruiert werden. Durch Wahl unterschiedlicher Trägerfrequenzen können auch verschiedene Sender gleichzeitig senden, ohne sich gegenseitig zu stören. Je nach Modulationsverfahren gibt es hier verschiedene Konstellationen. Die Simulation bietet auch eine andere Darstellung als der Sinus-Kosinus Darstellung, wobei es sich um die Grey-Code Darstellung handelt. Hierbei werden die einzelnen Konstellationspunkte in der I/Q Ebene betrachtet, wonach jeder Konstellationspunkt eine komplexe Zahl darstellt. Dies nennt man auch Konstellationsdiagramm. \\
+%In der Simulation wird mithilfe einer Funktion, welche jeder Bitfolge einen Konstellationspunkt zuordnet, das Nutzsignal auf das Trägersignal moduliert. Dabei ist das Modulationsverfahren ausschlaggebend dafür, wie viele Bits in ein Symbol moduliert werden. Durch die Wandlung der seriellen Bitfolge in einen parallelen Datenstrom, entspricht das System einem Mehrträgersender, wobei der Übertragene Vektor, welcher die Symbole enthält, als paralleler Datenstrom angesehen werden kann. Dies könnte man durch vertauschen der Dimensionen verdeutlichen, was ich aber in meinem Fukkanal nicht gemacht habe.\\
+%In der Simulation war zu beachten, dass die Anzahl der simulierten Bits in einem guten Verhältnis zu der Anzahl der im Symbol modulierten Bits steht, was bedeutet, dass kein Rest übrig bleibt, da sonst Bits verloren gehen würden. Hier könnte man die Anzahl der simulierten Bits dem Modulationsverfahren anpassen oder Bits komplett verschwinden/erschaffen lassen, was aber zu einer künstlich erhöhten Fehlerrate führen würde.\\
+%Beispielsweise arbeitet eine QPSK mit 4 Konstellationspunkten eine 16QAM hingegen mit 16 Konstellationspunkten. Eine 64QAM oder gar eine 128QAM arbeitet mit entsprechend noch mehr Konstellationspunkten, was den Vorteil hat, das mehr binäre Zustände auf einmal auf den Träger moduliert werden können und somit im Kanal eine deutliche höhere Bitrate herrscht.
+%
+%\section{Wie kann man Daten (Vektoren, Matrizen, \dots) graphisch darstellen?}
+%Man hat verschiedene Möglichkeiten, um Vektoren, Matrizen, \dots grafisch dazustellen.\linebreak In MATLAB gibt es dafür unter anderem die Funktionen: \textit{plot, scatterplot, logplot, semilog, stem, \dots}. Die Funktion \textit{scatterplot} bietet sich hier für die Darstellung der Konstellationspunkte und der Symbole, \textit{logplot} und \textit{semilog} hingegen für die logarithmische Darstellung der BER.
+%
+%
+%	
+%\section{Wie wird eine binäre Zahl in eine Dezimalzahl umgewandelt?}
+%Jede Stelle der Zahl hat den Wert einer entsprechenden 2er-Potenz, wobei die der ersten Ziffer von rechts entsprechende Potenz ist 2º = 1. Eine binäre Zahl wird in eine Dezimalzahl umgewandelt, indem man jede Ziffer einmal mit der entsprechenden Potenz aufsummiert.
+%
+%
+%\section{Wie kann diese Aufgabe effizient in MATLAB implementiert werden?}
+%Entweder, man verwendet eine interne Funktion wie etwa \textit{bin2dec, bi2de}, oder man implementiert den Algorithmus selber. Dabei hat man die Möglichkeit dies in einer Schleife oder mit der Funktion \textit{polyval}, welche die binäre Zahl als Polynom n-ten Grades an der Stelle x auswertet.
+%	\[y = p_1x^n + p_2x^n +\dots + p_nx + p_{n+1}\]
+%
+%\subsection{Skript Binär zu Dezimal Umwandlung}
+%\lstinputlisting{bidez.m} 
+%\begin{lstlisting} 
+%\end{lstlisting}
+%
+%%%===============================================================
+%\thispagestyle{headings}
+%\hfill
+%\newline
+%\section{Wie berechnet man die mittlere Leistung eines Signals (oder Vektors)?}	
+%Die mittlere Leistung ist die im konstanten Mittel übertragene Leistung und bildet damit den Gleichwert über dem Augenblickswert. Man kann die mittlere Leistung über den Effektivwert der Sinus- und Kosinusschwingungen ermittelt werden und bildet somit das quadratische Mittel (RMS). Damit lässt sich die mittlere Leistung mit
+%\[P=\dfrac{1}{\sqrt{2}}\]
+%berechnen, wobei man in MATLAB die mittlere Leistung mit der funktion \textit{rms} ermitteln kann.
+%
+%
+%
+%\begin{figure}
+%\chapter{Empfänger}
+%%%===============================================================
+%\thispagestyle{headings}
+%	Am Empfänger müssen die empfangenen verrauschten Symbole so zugeordnet werden, dass sie einem der Konstellationspunkte, welche das  Modulationsverfahren anbietet, entsprechen. Dies geschieht, indem man in der I/Q Ebene die Entfernung zwischen dem empfangenen Symbol und eines Konstellationpunktes ermittelt, wobei schlussendlich der Konstellationspunkt entschieden wird, zu dem das Symbol den geringsten Abstand hat.
+%\newline
+%\newline
+%	%\centering
+%	\includegraphics[width=1\textwidth]{./bilder/QPSK_AWGN_CONST.pdf}
+%	\caption{Empfangene Symbole einer QPSK über einen Rauschkanal mit unterschiedlichen Signal- Rauschabständen}
+%	\label{img:ber_rice}
+%\hfill
+%\newline\newline
+%Ist eine Entscheidung getroffen worden, müssen die Symbole wieder demoduliert werden, wobei erneut, je nach Modulationsverfahren, einer unterschiedliche Anzahl an Bits demoduliert werden muss. Die Anzahl Bits wird nach der gleichen Formel wie am Sender ermittelt.\newline
+%Abschließend können die gesendeten Bits mit den empfangenen Bits verglichen werden, um so die Anzahl der falsch entschiedenen Symbole als auch die Fehlerrate zu ermitteln. \newline Ohne ein Rauschen müsste die Fehlerrate immer bei exakt 0\% liegen, bzw. die empfangenen Symbole müssten in der I/Q Ebene immer exakt auf den Konstellationspunkten liegen.
+%\end{figure}
+%
+%
+%\chapter{Simulation des Funkkanals}
+%%%===============================================================
+%\thispagestyle{headings}
+%In diesem Kapitel wird die Simulation eines gedächtnislosen Funkkanals beschrieben. Ein gedächtnisloser Funkkanal ist ein Kanal, welcher eine Übertragungsfunktion H(k) besitzt, welche zu jedem Zeitpunkt \textit{k} nur vom derzeitigen Eingangswert x\textsubscript{k} abhängig ist.
+%\\\\
+%Bei dieser Simulation soll die Geschwindigkeit der Änderung des Kanals durch die Dopplerverschiebung nicht simuliert werden. Es wird einfach angenommen, dass der Kanal während einer Übertragung eines Modulationssymbols konstant ist, sich aber beim nächsten Modulationssymbol aber wieder anders verhält. Das bedeutet, dass pro Modulationssymbol, welches über den Kanal übertragen werden soll, ein einzelner Kanalkoeffizient erzeugt wird.
+%\linebreak
+%Zunächst wird ein einfacher Kanal, welcher dem Signal ausschließlich ein weißes Rauschen hinzufügt, implementiert. Die kann entweder mit einer eigens ermittelten Rauschfunktion geschehen, welche dem Nutzsignal hinzuaddiert wird, oder mit der von MATLAB bereitgestellten Funktion \textit{awgn}, welche als Eingangsparameter das Nutzsignal und den gewünschten Signal-Rauschabstand bekommt. Standardmäßig ist diese Funktion so implementiert, dass sie die Leistung des Rauschsignal anhand des Eingangssignals automatisch ermittelt, man hat aber auch die Möglichkeit ein eigenes Leistungsniveau anzugeben.\\
+%Die theoretisch erreichbaren Bitfehlerraten für eine Übertragung einer QPSK über einen reinen Rauschkanal sind gegeben mit:
+%\[P_{QPSK}= \dfrac{1}{2}erfc({\sqrt{SNR_b}})\]
+%analog dazu lassen sich weitere Bitfehlerraten für andere Modulationsformate von dieser abgeleiten:
+%\[P_{8PSK}= \dfrac{1}{2}erfc({\sqrt{3\cdot\sin{(\dfrac{\pi}{8}})^2  \cdot SNR_b}})\]
+%\[P_{16QAM}= \dfrac{1}{2}erfc({\sqrt{\dfrac{2}{5}\cdot SNR_b}})\]
+%\[P_{64QAM}= \dfrac{1}{2}erfc({\sqrt{\dfrac{1}{7}\cdot SNR_b}})\]
+%
+%\begin{figure}
+%	\section{Diskutieren Sie evtl. auftretende Abweichungen zwischen den numerisch ermittelten Fehlerraten zu den theoretisch erwarteten Werten}
+%	%\centering
+%	\includegraphics[width=1\textwidth]{./bilder/AWGN.pdf}
+%	\caption{BER pro SNR einer QPSK über einen Rauschkanal}
+%	\label{img:ber_rice}
+%\hfill
+%\newline
+%Die numerisch berechneten Werte stimmen im Großen und Ganzen ziemlich gut mit den theoretisch möglichen Werten überein. Aus dem Diagramm erkenne ich, dass ich in meiner Simulation einen maximalen Unterschied von 2\% nicht überschreite.\newline
+%Die Differenzen lassen sich mit der begrenzten Anzahl an simulierten Bits erklären. Bei einer Bitanzahl > \num{e3} müsste die Differenz immer kleiner werden und am Ende komplett verschwinden, was bedeuten würde, dass die tatsächlichen Bitfehlerraten über einen unbegrenzten Zeitraum im Mittel denen der theoretischen Bitfehlerrate entsprechen.\newline
+%In der Praxis hat man diesen unbegrenzten Zeitraum aber nicht, auch wenn man Trainingssymbole und Nutzsignalsymbole zusammenzählt.
+%
+%\end{figure}
+%\clearpage
+%
+%\begin{figure}
+%
+%	\section{Andere Modulationsformate und Vergleich der resultierenden Bitfehlerraten}
+%	%\centering
+%	\includegraphics[width=1\textwidth]{./bilder/AWGNALL.pdf}
+%	\caption{BER pro SNR mehrerer Modulationsformate}
+%	\label{img:ber_rice}
+%\hfill
+%\newline
+%	%\centering
+%	\includegraphics[width=1\textwidth]{./bilder/16QAM_AWGN_KONST.pdf}
+%	\caption{Empfangene Symbole einer 16QAM über einen Rauschkanal mit unterschiedlichen Signal- Rauschabständen}
+%	\label{img:ber_rice}
+%\end{figure}
+%\clearpage
+%Die Modulationsverfahren mit einer höheren Anzahl an Konstellationspunkten besitzen eine höhere Informationsdichtebenötigen und benötigen deswegen einen größeren Signal-Rauschabstand für eine fehlerfreie Bitübertragung (BER < \num{e-5}). Mehr Konstellationspunkte ermöglichen jedoch eine höhere Bitrate, da mehr Bits pro Symbol gesendet werden können.
+%\linebreak
+%\section{Was bedeutet eine Gaußverteilung in Real- und Imaginärteil für die Verteilungsdichtefunktion von Amplitude und Phase der Kanalkoeffizienten?}
+%Das Real- und Imaginärteil Gaußverteilt sind bedeutet, dass die Kanalkoeffizienten jeweils Mittelwertfrei sind, was wiederum daran liegt, dass sowohl der Real- als auch der Imaginärteil aus einer Überlagerung von Sinus- bzw. Kosinusschwingungen bestehen.
+%
+%\section{Wie ändert man die Varianz einer gaußverteilten Zufallsvariable? Wie kann der Mittelwert verändert werden?}
+%Der Mittelwert einer gaußverteilten Zufallsvariable kann geändert werden, indem man einen beliebigen Mittelwert zur Variable hinzuaddiert.
+%\begin{equation*}
+%	\mu_y = a*\mu_x+b
+%\end{equation*}
+%Die Varianz als Maß der Streuung kann verändert werden in dem die Zufallsvariable mit einem Faktor a Skaliert wird.
+%\begin{equation*}
+%	\sigma^2 = a^2*\sigma_x^2
+%\end{equation*}
+%Die Standartabweichung ist die Quadratwurzel der Varianz. Die MATLAB Funktion \textit{randn} erstellt mittelwertfreie Zufallsvariablen mit einer Varianz 1. 
+%
+%
+%\section{Warum sollten in einer Simulation mindestens 100 Bitfehler auftreten?}
+%In der Simulation wurde eine Abbruchbedingung eingefügt, um aussagekräftige Ergebnisse zu erzielen. Man sollte mindestens 100 Bitfehler zählen, um ein aussagekräftiges Signifikanzniveau bei der Bitfehlerrate zu gewährleisten. Demzufolge sollte man die Schleife maximal 100 mal laufen lassen, um nicht unnötig viele Bits zu simulieren.
+%
+%%%==========================================================================================
+%
+%\newpage
+%\section{Visualisierung der Verteilungsdichtefunktion und der Kanalkoeffizienten}
+%Nachfolgend werden die mit Verteilungsdichtefunktionen für den Rayleigh-Kanal und dem Rice-Kanal mit verschiedenen K-Faktoren. Für die Kanalkoeffizienten wurden jeweils \num{e4} Bits erzeugt.\newline
+%Die Kanalkoeffizienten bestehen aus einzelnen Line-of-sight- und Non-line-of-sight  Koeffizienten, wobei ein einem Reyleigh-Kanal nur NLOS Anteile vorhanden sind. Der K-Parameter beschreibt hierbei das Verhältnis der Leistungen zwischen LOS und NLOS Pfaden und ist definiert als:
+%\[K=\dfrac{P_{LOS}}{P_{NLOS}}=\dfrac{a_{LOS}^2}{2\sigma^2} \]\newline
+%Mit einem K-Faktor = 0 sind die Amplituden der Kanalkoeffizienten Reyleighverteilt, da die Leistung der LOS Pfade komplett unterdrückt wird.
+%Sind die Kanalkoeffizienten auf eine mittlere Leistung 1 normiert ergibt sich eine Wahrscheinlichkeitsdichtefunktion:
+%\[p_R(R)=2R\cdot e^{-R^2}\hfill ,fuer R \ge 0\]
+%\newline
+%Die Phasen sind zwischen -\textpi   und \textpi   gleichverteilt.
+%\newline\newline\newline
+%Mit einem K-Faktor > 1 werden die Amplituden Riceverteilt, da nun auch LOS Pfade einen Einfluss ausüben. Für die Amplituden ergibt sich eine Verteilung nach:
+%\[p_R(R)=\dfrac{R}{\sigma^2}e^{-((\dfrac{R}{\sqrt{2}\sigma})^2+K)} \cdot I_0(\dfrac{\sqrt{2}R}{\sigma}\sqrt{K}) \]
+%\newline
+%Es ist noch anzumerken, dass in der Simulation angenommen wird, dass der Empfänger den Kanal ideal geschätzt hat und somit alle Kanalkoeffizienten kennt.
+%Deswegen können Amplituden- und Phasenschwankungen des Schwundkanals ideal kompensiert werden.
+%\begin{figure}
+%
+%\subsection{Amplituden- und Phasenverteilung: Rice-Kanal mit K = 0 (Rayleigh-Kanal)}
+%	%\centering
+%	\includegraphics[width=1\textwidth]{./bilder/AMPL_K0.pdf}
+%	\caption{Amplitudenverteilung der Koeffizienten Rayleigh-Kanal (Rice-Kanal mit K=0)}
+%	\label{img:ampkoeff-ray}
+%	
+%	%\centering
+%	\includegraphics[width=1\textwidth]{./bilder/PHASE.pdf}
+%	\caption{Phasenverteilung der Koeffizienten Rayleigh-Kanal (Rice-Kanal mit K=0)}
+%	\label{img:phakoeff-ray}
+%\end{figure}
+%
+%\begin{figure}
+%	\subsection{Amplitudenverteilung: Rice-Kanal mit K = 2}
+%	%\centering
+%	\includegraphics[width=1\textwidth]{./bilder/AMPL_K2.pdf}
+%	\caption{Amplitudenverteilung der Koeffizienten Rice-Kanal mit K=2}
+%	\label{img:ampkoeff-rice2}
+%
+%\subsection{Amplitudenverteilung: Rice-Kanal mit K = 5}
+%	%\centering
+%	\includegraphics[width=1\textwidth]{./bilder/AMPL_K5.pdf}
+%	\caption{Amplitudenverteilung der Koeffizienten Rice-Kanal mit K=5}
+%	\label{img:ampkoeff-rice5}
+%\end{figure}
+%
+%
+%\begin{figure}
+%\subsection{Amplitudenverteilung: Rice-Kanal mit K = 10}
+%	%\centering
+%	\includegraphics[width=1\textwidth]{./bilder/AMPL_K10.pdf}
+%	\caption{Amplitudenverteilung der Koeffizienten Rice-Kanal mit K=10}
+%	\label{img:ampkoeff-rice10}
+%\hfill
+%\newline\newline
+%Man kann deutlich erkennen, dass die Verteilungsdichtefunktion mit steigendem K-Faktor immer mehr gaußverteilt wird, gleichzeitig auch die Varianz abnimmt, was sich auch in der Funktion zur Bitfehlerrate bemerkbar macht, da diese sich immer mehr der eines reinen Rauschkanals annähert. Dies lässt sich durch den schwindenden Anteil der NLOS-Komponente in den Kanalkoeffizienten erklären.
+%\end{figure}
+%
+%
+%\begin{figure}
+%	\section{Visualisierung der Bitfehlerraten einer QPSK}
+%	%\centering
+%	\includegraphics[width=1\textwidth]{./bilder/BER_RICE.pdf}
+%	\caption{BER pro SNR pro Bit einer QPSK über einen Rice-Kanal mit ansteigendem Wert für den Parameter K (K = 0,1,2,5,10,25). Die Linien zeigen die theoretisch möglichen Bitfehlerraten, während die Punkte numerisch ermittelte Simulationswerte darstellen.}
+%	\label{img:ber_rice}
+%\hfill
+%\newline
+%	\section{Warum nähern sich die Ergebnisse für einen steigenden Parameter K denen eines AWGN Kanals an?}
+%Der Faktor K gewichtet die Leistung der LOS-Komponente im Rice-Kanal, was zu einer geringeren BER pro SNR führt. Der AWGN Kanal stellt dabei eine natürliche Grenze dar, da jedem Kanal ein Rauschkanal hinzuaddiert wird.
+%\end{figure}
+%
+%
+%\newpage
+%\newpage
+%
+%
+%
+%%\chapter{Quellcode der Kanalsimulation}
+%%
+%%\lstinputlisting{Funkkanal.m} 
+%%\begin{lstlisting}
+%%\end{lstlisting}
+%
+%\begin{figure}
+%\chapter{Fazit, Probleme und Ausblick}
+%%%===============================================================
+%\thispagestyle{headings}
+%Schlussendlich ist zu sagen, dass die Simulation eines vereinfachten Funkkanals gut funktioniert hat. Es gab bis auf ein paar Kleinigkeiten kaum Probleme mit der Implementierung der Funktionalitäten.\newline Bis zuletzt gab es aber das Problem, dass unter bestimmten Umständen die Bitfehlerraten eines Reyleigh-Kanals und eines Rice-Kanals mit kleinem K-Faktor unnatürlich hoch waren. Dieses Problem ließ sich nicht immer reproduzieren.
+%Letztendlich hatte sich aber herausgestellt, dass meine Implementierung der Symbolentscheidung teilweise Fehler produziert hat, sodass einem Symbol ein falscher Konstellationspunkt zugeordnet wurde. Diesen Fehler konnte ich beheben.
+%	%\centering
+%	\includegraphics[width=1\textwidth]{./bilder/error.pdf}
+%	\caption{BER pro SNR pro Bit einer QPSK mit fehlerhafter demapper Funktion.}
+%	\label{img:ber_rice}
+%\hfill
+%\newline
+%Abschließen ist zu sagen, dass die MATLAB-Simulation den gesamten Vorgang der digitalen Funkübertragung und das Konzept des Funkkanals sehr gut vermittelt hat, auch wenn es sich bei dieser Simulation um ein vereinfachtes Modell handelt.\newline
+%Diese Veranschaulichung eines Übertragungssystems hat für mich die Thematik sehr interessant gemacht, vor allem unter dem Aspekt, dass aus begrenzten Möglichkeiten (Rauschen, Bandbreite,\dots) so viel erreicht werden kann.
+%\end{figure}
+
+\listoffigures
+%%===============================================================
+\thispagestyle{headings}
+\end{document}

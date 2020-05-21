@@ -121,7 +121,7 @@ def LR_gradient_descent(X, y, theta0, nmax=10000, eta=0.01):
         #theta um eta in richtung des gradientenabstieges anpassen
         theta = theta - eta * gradient
     #kosten
-    J = np.mean(loss**2)
+    J = 0.5* np.mean(loss**2)
 
     return theta, J
 

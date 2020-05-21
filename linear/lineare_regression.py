@@ -265,7 +265,7 @@ def QuadraticFeatures_fit_transform(X, degree = 2):
 #
 def mean_squared_error(y_true, y_pred):
 
-    mse = np.mean((y_true - y_pred) ** 2)
+    mse = 0.5 * np.mean((y_true - y_pred) ** 2)
     #mse2 = 1/(len(y_true))*np.sum((y_true - y_pred) ** 2)
     #print(mse,mse2)
     return mse
