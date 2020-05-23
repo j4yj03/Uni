@@ -13,7 +13,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 import matplotlib.gridspec as gridspec
 # import seaborn as sns #pip install searborn
-import linear.lineare_regression as lr
+import lineare_regression as lr
 from sklearn.datasets import load_boston
 from itertools import chain, combinations_with_replacement, product
 #############################################
@@ -56,7 +56,8 @@ def plotlearningcurve(over,text):
     ax.plot(over, np.sqrt(mse_train), label='trainingdata')
     ax.set_ylabel('root mse')
     ax.set_xlabel('{text}')
-    ax.set_xlim(-5,max(over))
+    ax.set_ylim(0,5)
+    ax.set_xlim(min(over)-0.1,max(over)+0.1)
     ax.legend()
     ax2.set_title('RMSE bei verschiedenen {text} (vergroessert)')
     ax2.plot(over, np.sqrt(mse_test), label='testdata')
@@ -71,15 +72,17 @@ def plotlearningcurve(over,text):
     plt.savefig('learncurve_{text}.png')
     plt.show()
 
-def crossval(k):
+def crossval(X_train, k):
     train_folds_score = []
     validation_folds_score = []
+    alpha = np.logspace(-200,0.1, num=500, endpoint=True, base=2)
+
     for fold in range(0, k):
 
-        size = vector.shape[0]
+        size = X_train.shape[0]
         start = (size/k)*fold
         end = (size/k)*(fold+1)
-        validation = vector[start:end]
+        validation = X_train[start:end]
 
 
         training_set, validation_set = Cross_Validation.partition(examples, fold, k)
@@ -111,16 +114,14 @@ def linear(degree=[1], alpha=[0], size=[100]):
     legend = []
     #12345
     hyperparameter = list(product(degree, alpha, size))
-    #hyperparameter = [[1,600,200],[2,45339,405]]#,[3,8000000,200]]
+    #hyperparameter =[[1,0.01,405],[2,0.01,405]]# [[1,600,200],[2,45339,405]]#,[3,8000000,200]]
 
 
-    fig = plt.figure(figsize=(18, 9))
+    fig = plt.figure(figsize=(20, 8))
     gs = gridspec.GridSpec(1, 2)
     ax = plt.subplot(gs[0])
 
     ax2 = plt.subplot(gs[1])
-    #ax.ylabel('target')
-    #ax.xlabel(features[column_to_plot])
 
 
     for hypr in hyperparameter:
@@ -164,15 +165,18 @@ def linear(degree=[1], alpha=[0], size=[100]):
             +f'({np.shape(X_te_n)}):\nr2 = {r2}\nmse = {mse}\n')
 
 
-        # ax.plot([X_te.T[column_to_plot],
-        #           X_te.T[column_to_plot]], [y_pred_test, y_te],
-        #          color='0.75', linestyle='-.', linewidth=0.5)  # , label="mse")
-        # ax.scatter(X_te.T[column_to_plot], y_pred_test,
-        #             edgecolors='black', marker='x', label="predicted")
-        #
-        # ax2.scatter(y_pred_test, y_te)
+        #######################################################################
+        #plot mse
+        ax.plot([X_te.T[column_to_plot],
+                  X_te.T[column_to_plot]], [y_pred_test, y_te],
+                 color='0.75', linestyle='dotted', linewidth=0.5)
 
-        #ax2.grid(True)
+        ax.scatter(X_te.T[column_to_plot], y_pred_test,
+                    edgecolors='black', marker='x', label=f'degree = {d}\nalpha = {a}\nmse = {mse:.5f}')
+
+        ax2.scatter(y_pred_test, y_te, marker='.', label=f'degree = {d}\nalpha = {a}\nr2 = {r2:.5f}')
+
+
 
 
     print('###############', '\n')
@@ -183,22 +187,27 @@ def linear(degree=[1], alpha=[0], size=[100]):
     legend.append('training point')
     legend.append('original unknown point')
 
-    # ax.set_title('mse = {}'.format(mse_test))
+    ax.set_title(f'{features[column_to_plot]}: Trainingspunkte m_tr = {len(X_tr)} sowie Testpunkte m_t = {len(X_te)}')
     #ax.set_xlim(min(X.T[column_to_plot]) - 0.2, max(X.T[column_to_plot]) + 0.2)
-    ax.set_xlabel(features[column_to_plot])
-    ax.set_ylabel('target')
-    ax.legend(legend)
-    #ax2.set_title('R2 score = {}'.format(r2_score_ridge))
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+
+    ax2.set_title('Residuum')
     ax2.set_xlabel('y predicted')
     ax2.set_ylim(0, ax.get_ylim()[1])
     ax2.set_ylabel('y')
     ax2.set_xlim(0,ax.get_ylim()[1])
+
     ax.scatter(X_tr.T[column_to_plot], y_tr, color='white',
                 edgecolors='black', label="training point")
     ax.scatter(X_te.T[column_to_plot], y_te, color='black',
-                edgecolors='white', label="test point")
-    ax2.plot(ax2.get_xlim(), ax2.get_ylim(), color='0.7', linestyle='dotted')
+                marker='.', label="test point")
+
+    ax2.plot(ax2.get_xlim(), ax2.get_ylim(), color='0.1', linestyle='-.', linewidth=0.5, label='r2 = 1')
     #fig.savefig(f'./pics/linearreg_{features[column_to_plot]}_{hyperparameter}_{np.shape(X_te)}.png', bbox_inches='tight')
+    ax.legend()
+    ax2.legend()
+    ax2.grid(color='0.7', linestyle='-.', linewidth=0.5)
     plt.show()
 
     return hyperparameter, r2_score_ridge, mse_test, mse_train, cost, theta_ridge
@@ -210,18 +219,18 @@ def linear(degree=[1], alpha=[0], size=[100]):
 
 
 
-degree = [1]
-alpha = list(np.arange(0.0001,0.5,0.001))
-size = [100]
+# degree = [1]
+# alpha = list(np.arange(0.0001,0.5,0.001)) list(np.logspace(-200,0.1, num=500, endpoint=True, base=2))
+# size = [100]
 
-column_to_plot = 8
+column_to_plot = 5
 
 # degree = [1]
 # alpha = [600]
 # size = list(range(1,405,1))
-# degree = [2]
-# alpha = [45339]
-# size = [405]
+degree = [1,2]
+alpha = [0.0035,0.035,0.35]
+size = [4000]
 
 
 print(alpha)
@@ -254,7 +263,7 @@ X_test, X_val, y_test, y_val = lr.train_test_split(X_test, y_test, 0.5, 0)
 ####################
 
 # Häufigkeitsverteilung y (target)
-fig = plt.figure(figsize=(8, 8))
+fig = plt.figure(figsize=(9, 8))
 plt.hist(y_train)
 plt.xlabel('target value')
 plt.ylabel('relative Häufigkeitsverteilung')
@@ -291,27 +300,30 @@ for ind, col in enumerate(X_train.T):
     plt.show()
 
     #Feature beschreiben
-    print(f'rows = {np.size(col)}\nall numeric = {not np.isnan(col).any()} ({col.dtype})\nmean = {mean}\nstd = {std}', '\n', '\n')
+    print(f'rows = {np.size(col)}\nall numeric = {not np.isnan(col).any()} ({col.dtype})\nmean = {mean}\nstd = {std}\ncorrcoef = {coeff}', '\n', '\n')
 
-coeffinds = np.array(coeffs).argsort()
-
-X_sorted = X.T[coeffinds[::-1]]
-features_sorted = features[coeffinds[::-1]]
+# coeffinds = np.array(coeffs).argsort()
+#
+# X_sorted = X.T[coeffinds[::-1]]
+# features_sorted = features[coeffinds[::-1]]
 
 
 
 
 # Datenset mit entfernten Features
 X = dataset.data
-mask = np.ones(np.size(dataset.data,1), dtype=bool)
-mask[[-4,-2]] = False
-X = dataset.data[:,mask]
+X = X[:5000]
+y = y[:5000]
+# mask = np.ones(np.size(dataset.data,1), dtype=bool)
+# mask[[-4,-2]] = False
+# X = dataset.data[:,mask]
 
 ## Datenset erneut aufsplitten
 X_train, X_test, y_train, y_test = lr.train_test_split(X, y, 0.6, 0)
 X_test, X_val, y_test, y_val = lr.train_test_split(X_test, y_test, 0.5, 0)
 X_train = np.vstack((X_train, X_val))
 y_train = np.hstack((y_train, y_val))
+
 print(X_train.shape,y_train.shape)
 
 hyperparameter, r2_score_ridge, mse_test, mse_train, cost, theta_ridge = linear(degree, alpha, size)
@@ -319,23 +331,23 @@ hyperparameter, r2_score_ridge, mse_test, mse_train, cost, theta_ridge = linear(
 
 print('')
 
-over = alpha
-text = 'alpha'
+over = size
+text = 'size'
 plotlearningcurve(over, text)
 
 
 
-##############################################################################################
-for _ in range(np.size(X,1)):
-    column_to_plot = _
-    hyperparameter, r2_score_ridge, mse_test, cost, theta_ridge = linear(degree, alpha, size)
-
-
-
-
-r2_score_ridgeinds = np.array(r2_score_ridge).argsort()
-hyperparameter_sorted = hyperparameter[r2_score_ridgeinds[-1]]
-print(F'best hyperparameters = {hyperparameter_sorted}')
+# ##############################################################################################
+# for _ in range(np.size(X,1)):
+#     column_to_plot = _
+#     hyperparameter, r2_score_ridge, mse_test, cost, theta_ridge = linear(degree, alpha, size)
+#
+#
+#
+#
+# r2_score_ridgeinds = np.array(r2_score_ridge).argsort()
+# hyperparameter_sorted = hyperparameter[r2_score_ridgeinds[-1]]
+# print(F'best hyperparameters = {hyperparameter_sorted}')
 
 
 ####################

@@ -1,0 +1,60 @@
+\ifglsentryexists{duck}{}%
+{%
+\gls@defglossaryentry{duck}%
+{%
+name={duck},%
+sort={duck},%
+type={main},%
+first={duck},%
+firstplural={ducks},%
+text={duck},%
+plural={ducks},%
+description={a waterbird with webbed feet},%
+descriptionplural={a waterbird with webbed feet},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
+\ifglsentryexists{parrot}{}%
+{%
+\gls@defglossaryentry{parrot}%
+{%
+name={parrot},%
+sort={parrot},%
+type={main},%
+first={parrot},%
+firstplural={parrots},%
+text={parrot},%
+plural={parrots},%
+description={mainly tropical bird with bright plumage},%
+descriptionplural={mainly tropical bird with bright plumage},%
+symbol={\relax },%
+symbolplural={\relax },%
+user1={},%
+user2={},%
+user3={},%
+user4={},%
+user5={},%
+user6={},%
+long={},%
+longplural={},%
+short={},%
+shortplural={},%
+counter={page},%
+parent={},%
+%
+}%
+}%
