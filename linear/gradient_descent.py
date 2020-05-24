@@ -179,7 +179,7 @@ def LR_gradient_descent_hist(X, y, theta0, nmax=100000, eta=0.0001):
         #differenz zwischen y und h(theta) ermitteln
         y_pred = Ridge_predict(X, theta)
         loss = (y_pred - y)
-        cost = np.mean(loss**2)
+        cost = 0,5 * np.mean(loss**2)
         # Vektor der Ableitungen (Gradientenvektor)
         gradient = extend_matrix(X).T.dot(loss)
         #theta um eta in richtung des gradientenabstieges anpassen
