@@ -28,9 +28,9 @@
 #
 
 import numpy as np
-from scipy.special import expit
 #%% extend_matrix (vom letzten Mal verwenden, wird nicht geprüft)
-
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
 # Erweitert eine Matrix um eine erste Spalte mit Einsen
 #
 # X_ext = extend_matrix(X)
@@ -45,7 +45,28 @@ def extend_matrix(X):
     X_ext = np.c_[np.ones((np.size(X,0),1)),X]
     return X_ext
 
+#%% LogisticRegression_predict
 
+# Berechnung der Vorhersage der multivariaten logistischen Regression
+#
+# y = LogisticRegression_predict(X,theta)
+#
+# Eingabe:
+#   X      Matrix m x n mit m Datenpunkten und n Features (numpy.ndarray)
+#   theta  Vektor der  Länge n+1 der Parameter (numpy.ndarray)
+#
+# Ausgabe
+#   y      Vektor der Länge m der Vorhersagewerte (numpy.ndarray)
+#
+#
+def LogisticRegression_predict(X, theta):
+    #berechne Wahrscheinlichkeit
+
+
+    h = sigmoid(extend_matrix(X).dot(theta))
+    y = (h >= 0.5).astype(int)
+
+    return y
 #%% logistic_cost_function
 
 # Berechnung der Kostenfunktion der logistischen Regression und deren
@@ -64,11 +85,14 @@ def extend_matrix(X):
 #
 def logistic_cost_function(X,y, theta):
     # TODO: berechne J und Jgrad
+    #epsilon = 1e-10
+    #print(theta)
+    #y_pred = LogisticRegression_predict(X, theta)
+    h = sigmoid(extend_matrix(X).dot(theta))
 
-    J = y * np.log10(LogisticRegression_predict(X, theta)) + (1 - y) * np.log10(1 - LogisticRegression_predict(X, theta))
+    J = - np.mean(y * np.log(h) + (1 - y) * np.log(1 - h))
 
-    Jgrad = 1/len(y) * extend_matrix(X).T.dot(LogisticRegression_predict(X, theta) - y)
-    #J = 0.5* np.mean(loss**2)
+    Jgrad = 1/len(y) * extend_matrix(X).T.dot(h - y)
 
     return J, Jgrad
 
@@ -100,30 +124,33 @@ def logistic_cost_function(X,y, theta):
 #
 def LogisticRegression_fit(X,y, eta, tol):
     # TODO: berechne theta und J
+    assert eta > 0, 'eta kleiner 0'
+
+    X_ext = extend_matrix(X)
+
+    theta = np.zeros(X_ext.shape[1])
+    thetas = []
+    costs = []
+    J, Jgrad = logistic_cost_function(X,y, theta)
+
+    while(np.linalg.norm(Jgrad) >= tol):
+
+        #theta um eta in richtung des gradientenabstieges anpassen
+        theta = theta - eta * Jgrad
+
+        J, Jgrad = logistic_cost_function(X,y, theta)
+
+        thetas.append(theta)
+        costs.append(J)
+
+        if len(thetas) > 2:
+             if np.all(costs[-2:] == J):
+                 raise "J fällt nich"
+
     return theta, J
 
 
-#%% LogisticRegression_predict
 
-# Berechnung der Vorhersage der multivariaten logistischen Regression
-#
-# y = LogisticRegression_predict(X,theta)
-#
-# Eingabe:
-#   X      Matrix m x n mit m Datenpunkten und n Features (numpy.ndarray)
-#   theta  Vektor der  Länge n+1 der Parameter (numpy.ndarray)
-#
-# Ausgabe
-#   y      Vektor der Länge m der Vorhersagewerte (numpy.ndarray)
-#
-#
-def LogisticRegression_predict(X, theta):
-    #berechne Wahrscheinlichkeit
-    p = expit(extend_matrix(X).dot(theta))
-
-    y = 1 if p >= .5 else 0
-
-    return y
 
 
 #%% accuracy_score
@@ -139,9 +166,15 @@ def LogisticRegression_predict(X, theta):
 # Ausgabe
 #   acc    Genauigkeit (Skalar)
 #
-def accuracy_score(y_true,y_pred):
+def accuracy_score(y_true, y_pred):
     # TODO: berechne acc
-    acc = np.mean(y_true == y_pred)
+
+    tn = np.sum((y_true == y_pred) & (y_true == 0))
+    tp = np.sum((y_true == y_pred) & (y_true == 1))
+    fp = np.sum((y_true != y_pred) & (y_true == 0))
+    fn = np.sum((y_true != y_pred) & (y_true == 1))
+
+    acc = (tp+tn) / (tp+tn+fp+fn)
 
     return acc
 
@@ -162,6 +195,12 @@ def accuracy_score(y_true,y_pred):
 def precision_score(y_true,y_pred):
     # tp / tp + fp
     # TODO: berechne prec
+
+    tp = np.sum((y_true == y_pred) & (y_true == 1))
+    fp = np.sum((y_true != y_pred) & (y_true == 0))
+
+    prec = tp / (tp + fp)
+
     return prec
 
 #%% recall_score
@@ -180,4 +219,9 @@ def precision_score(y_true,y_pred):
 def recall_score(y_true,y_pred):
     # tp / tp + fn
     # TODO: berechne recall
+    tp = np.sum((y_true == y_pred) & (y_true == 1))
+    fn = np.sum((y_true != y_pred) & (y_pred == 0))
+
+    recall = tp / (tp + fn)
+
     return recall# -*- coding: utf-8 -*-

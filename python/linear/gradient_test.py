@@ -22,7 +22,7 @@ if __name__ == "__main__":
     #y_u = uni['y'].to_numpy()
 
     #multivariat
-    multi = pd.read_csv("./data/multivariat.csv", sep=',')
+    multi = pd.read_csv("./python/linear/data/multivariat.csv", sep=',')
     # x1_m = multi['x1'].to_numpy()
     # x2_m = multi['x2'].to_numpy()
     X_m = multi.iloc[:,0:2].to_numpy()[:500]
