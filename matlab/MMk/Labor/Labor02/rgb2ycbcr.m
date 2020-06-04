@@ -41,16 +41,20 @@ if strcmp(convmtrx,'BT601')
     Kr = 0.299;
     Kb = 0.114;
 elseif strcmp(convmtrx,'BT709')
-    %% TODO
+    Kr = 0.2126;
+    Kb = 0.0722;
 elseif strcmp(convmtrx,'BT2020')
-    %% TODO
+    Kr = 0.2627;
+    Kb = 0.0593;
 else
     error(['Unknown conversion matrix: ' convmtrx]);
 end
 
 %% TODO
 %  do transform here for Y Pb Pr
-
+Y = Kr * R + (1 - Kr- Kb) * G + Kb * B
+Pb = 1/2 * ((B - Y)/(1 - Kb))
+Pr = 1/2 * ((R - Y)/(1 - Kr))
 
 %% TODO
 %  quantize normalized Y Cb Cr based on bitdepth variable either
@@ -58,11 +62,14 @@ end
 %  Cb and Cr or
 %  to 10bit values with limited range from 64 to 940 for Y and to 16 to 960
 %  for CB and Cr
+2^(bitdepth - 8)
 
     
 %% TODO
 %  clip Y Cb Cr output to the bitdepth dependent limited range (see above)
 %  and make it uint8() for 8bit and uint16() for 10bit
+
+
 
 
 

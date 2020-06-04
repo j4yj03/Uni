@@ -19,7 +19,7 @@ disp('Applying RGB to 10bit YCbCr conversion for BT709 OETF BT2020 colorspace RG
 [Y_OetfBT709_CpBT2020_10b,  Cb_OetfBT709_CpBT2020_10b,  Cr_OetfBT709_CpBT2020_10b]  = rgb2ycbcr(RGBn_OetfBT709_CpBT2020(:,:,1), RGBn_OetfBT709_CpBT2020(:,:,2), RGBn_OetfBT709_CpBT2020(:,:,3), 10,'BT2020');
 
 %% 2. Apply 4:2:0 color-subsampling schemes to the 4:4:4 8bit YCbCr image 
-%
+% T = [65.481,128.553,24.966,16;-37.797,-74.203,112.0,128;112.0,-93.786,-18.214,128];
 %  HINT: use the function imresize()
 
 
