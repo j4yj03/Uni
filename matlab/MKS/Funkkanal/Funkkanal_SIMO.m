@@ -112,7 +112,7 @@ function y=fadingChannel(i,mappedSymbols,SNR,K)
 	
     transmittedSymbols = mappedSymbols.*h;         % Symbole werden ueber den Kanal "gesendet"
 	
-    receivedsymbols=awgn(transmittedSymbols,SNR,'measured');  % additives Kanalrauschen durch senden ueber einen Kanal
+    receivedsymbols=setSNR(transmittedSymbols,SNR);  % additives Kanalrauschen durch senden ueber einen Kanal
 	
     y = receivedsymbols./h;       % Symbole werden kompensiert/entzerrt. h(x) ist bekannt, das der Kanal ideal geschaetzt wurde
 end
@@ -139,6 +139,11 @@ function y=radioFadingChannel(i, nSamp, K, Nr)
 		end
 	end
    
+end
+%=======================================================================================================================
+function y=setSNR(x, snrdb)
+%Funktion SNR
+    y = awgn(x,snrdb,'measured');  % additives Kanalrauschen durch senden ueber einen Kanal
 end
 %=======================================================================================================================
 function plotCoeff(coeff,K)

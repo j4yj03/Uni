@@ -57,14 +57,16 @@ end
 %  from -0.5 to 0.5 for Pb and Pr
 %  HINT: convert Y Cb Cr component to double precision using double() first
 
+%Y = double((Y - 16)/ 219 )./ double(max(max(max((Y - 16)/ 219))));
+%Pb = double((Cb - 128)/ 224)./ double(max(max(max((Cb - 128)/ 224)))) - 0.5;
+%Pr = double((Cr - 128)/ 224)./ double(max(max(max((Cr - 128)/ 224)))) - 0.5;
+Y = double(Y-16);
+Cb = double(Cb);
+Cr = double(Cr);
 
-Y = double(Y - 16);
-Cb = double(Cb - 16);
-Cr = double(Cr - 16);
-
-Yt = Y./ max(max(Y));
-Pb = Cb./ max(max(Cb)) - 0.5;
-Pr = Cr./ max(max(Cr)) - 0.5;
+Yt = double(Y - 16)./ double(max(max(Y-16)));
+Pb = double(Cb - 128)./ double(max(max(Cb-128))) - 0.5;
+Pr = double(Cr - 128)./ double(max(max(Cr-128))) - 0.5;
 %RGB_ACES = double(RGB_ACES)./ double(max(max(max(RGB_ACES))));
 
 

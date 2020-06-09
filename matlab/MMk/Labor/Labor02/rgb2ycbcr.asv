@@ -62,11 +62,11 @@ Pr = 0.5 * ((R - Y)/(1 - Kr));
 %  Cb and Cr or
 %  to 10bit values with limited range from 64 to 940 for Y and to 16 to 960
 %  for CB and Cr
-Y = round((Y.*219 + 16).*2^(bitdepth - 8));
+Y = round((Y*219 + 16)*2^(bitdepth - 8));
 
-Cb = round((Pb.*224 + 128).*2^(bitdepth - 8));
+Cb = round((Pb*224 + 128)*2^(bitdepth - 8));
 
-Cr = round((Pr.*224 + 128).*2^(bitdepth - 8));  
+Cr = round((Pr*224 + 128)*2^(bitdepth - 8));  
 
 %% TODO
 %  clip Y Cb Cr output to the bitdepth dependent limited range (see above)
