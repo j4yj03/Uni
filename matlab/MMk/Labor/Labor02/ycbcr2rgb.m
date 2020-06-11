@@ -62,9 +62,14 @@ Y = double(Y - 16);
 Cb = double(Cb - 16);
 Cr = double(Cr - 16);
 
-Yt = Y./ max(max(Y));
-Pb = Cb./ max(max(Cb)) - 0.5;
-Pr = Cr./ max(max(Cr)) - 0.5;
+%Yt = Y./ max(max(Y));
+%Pb = Cb./ max(max(Cb)) - 0.5;
+%Pr = Cr./ max(max(Cr)) - 0.5;
+
+
+Yt = Y./ 219;
+Pb = (Cb./ 224) - 0.5;
+Pr = (Cr./ 224) - 0.5;
 %RGB_ACES = double(RGB_ACES)./ double(max(max(max(RGB_ACES))));
 
 

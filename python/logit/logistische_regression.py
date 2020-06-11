@@ -28,9 +28,71 @@
 #
 
 import numpy as np
-#%% extend_matrix (vom letzten Mal verwenden, wird nicht geprüft)
+
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
+
+
+def train_test_split(X, y, frac, seed):
+
+    m = X.shape[0]
+
+    np.random.seed(seed)
+    index = np.arange(m)
+    np.random.shuffle(index)
+    cut = int(m*frac)
+
+    return X[index[:cut],:], X[index[cut:],:], y[index[:cut]], y[index[cut:]]
+
+
+
+#%% StandardScaler_fit
+
+# Berechnet Mittelwert und Standardabweichung für Skalierung
+#
+# mean, std = StandardScaler_fit(X)
+#
+# Eingabe:
+#   X       Matrix m x n (numpy.ndarray)
+#
+# Ausgabe
+#   mean    Vektor der Länge n der spaltenweisen Mittelwerte (numpy.ndarray)
+#           mean_j = 1/m sum_(i=1)^m x^(i)_j
+#   std     Vektor der Länge n der spaltenweisen Standardabweichung (numpy.ndarray)
+#           std_j = 1/m sum_(i=1)^m (y^(i)_j - mean_j)^2
+#
+# Hinweis: siehe entsprechende Routinen in numpy
+#
+def StandardScaler_fit(X):
+    # TODO: Berechne mean, std
+    mean, std = np.mean(X, axis=0), np.std(X, axis=0)
+    return mean, std
+
+
+#%% StandardScaler_transform
+
+# Berechnet Mittelwert und Standardabweichung für Skalierung
+#
+# Xs = StandardScaler_transform(X)
+#
+# Eingabe:
+#   X       Matrix m x n (numpy.ndarray)
+#   mean    Vektor der Länge n der spaltenweisen Mittelwerte (numpy.ndarray)
+#   std     Vektor der Länge n der spaltenweisen Standardabweichung (numpy.ndarray)
+#
+# Ausgabe
+#   Xs      Matrix m x n der spaltenweise skalierten Werte (numpy.ndarray)
+#           Xs_(i,j) = (X_(i,j) - mean_j)/std_j
+#
+def StandardScaler_transform(X, mean, std):
+    # TODO: Berechne Xs
+
+    #Xs=(X[:,:]-mean[:])/std[:] if X.ndim > 1 else (X[:]-mean)/std
+    Xs = (X-mean)/(std)
+    return Xs
+
+
+
 # Erweitert eine Matrix um eine erste Spalte mit Einsen
 #
 # X_ext = extend_matrix(X)
@@ -134,7 +196,8 @@ def LogisticRegression_fit(X,y, eta, tol):
     J, Jgrad = logistic_cost_function(X,y, theta)
 
     while(np.linalg.norm(Jgrad) >= tol):
-
+        
+        #print(J)
         #theta um eta in richtung des gradientenabstieges anpassen
         theta = theta - eta * Jgrad
 
@@ -144,8 +207,9 @@ def LogisticRegression_fit(X,y, eta, tol):
         costs.append(J)
 
         if len(thetas) > 2:
-             if np.all(costs[-2:] == J):
-                 raise "J fällt nich"
+             if np.all(costs[-2:] <= J):
+                print("Error: Kosten bleibt gleich oder steigt")
+                raise
 
     return theta, J
 

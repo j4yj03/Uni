@@ -143,6 +143,8 @@ end
 %=======================================================================================================================
 function y=setSNR(x, snrdb)
 %Funktion SNR
+    %a = snrdb * rms(x)^2
+    %y = x + a.* randn(size(x))
     y = awgn(x,snrdb,'measured');  % additives Kanalrauschen durch senden ueber einen Kanal
 end
 %=======================================================================================================================

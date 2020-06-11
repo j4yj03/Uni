@@ -52,9 +52,9 @@ end
 
 %% TODO
 %  do transform here for Y Pb Pr
-Y = Kr * R + (1 - Kr - Kb) * G + Kb * B;
-Pb = 0.5 * ((B - Y)/(1 - Kb));
-Pr = 0.5 * ((R - Y)/(1 - Kr));
+Y = Kr * R + (1 - Kr - Kb).* G + Kb * B;
+Pb = ((B - Y)./(1 - Kb)).*0.5;
+Pr = ((R - Y)./(1 - Kr)).*0.5;
 
 %% TODO
 %  quantize normalized Y Cb Cr based on bitdepth variable either
@@ -78,8 +78,8 @@ if bitdepth == 8
     Cr = uint8(min(max(Cr,16),240));
 else
     Y = uint16(min(max(Cb,64),940));
-    Cb = uint16(min(max(Cb,16),960));
-    Cr = uint16(min(max(Cr,16),960));
+    Cb = uint16(min(max(Cb,64),960));
+    Cr = uint16(min(max(Cr,64),960));
 end
 
 end
