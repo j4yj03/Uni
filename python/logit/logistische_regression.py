@@ -190,9 +190,10 @@ def LogisticRegression_fit(X,y, eta, tol):
 
     X_ext = extend_matrix(X)
 
-    theta = np.zeros(X_ext.shape[1])
+    theta = np.zeros(X_ext.shape[1], dtype='float64')
     thetas = []
     costs = []
+    counter = 0
     J, Jgrad = logistic_cost_function(X,y, theta)
 
     while(np.linalg.norm(Jgrad) >= tol):
@@ -205,13 +206,14 @@ def LogisticRegression_fit(X,y, eta, tol):
 
         thetas.append(theta)
         costs.append(J)
-
+        
         if len(thetas) > 2:
              if np.all(costs[-2:] <= J):
                 print("Error: Kosten bleibt gleich oder steigt")
                 raise
-
-    return theta, J
+        counter=counter+1
+        
+    return theta, J, counter
 
 
 
