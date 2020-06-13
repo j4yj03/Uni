@@ -128,7 +128,7 @@ def LogisticRegression_predict(X, theta):
     h = sigmoid(extend_matrix(X).dot(theta))
     y = (h >= 0.5).astype(int)
 
-    return y
+    return y, h
 #%% logistic_cost_function
 
 # Berechnung der Kostenfunktion der logistischen Regression und deren
@@ -209,7 +209,7 @@ def LogisticRegression_fit(X,y, eta, tol):
         
         if len(thetas) > 2:
              if np.all(costs[-2:] <= J):
-                print("Error: Kosten bleibt gleich oder steigt")
+                print("Error: Kosten",J,"bleibt gleich oder steigt")
                 raise
         counter=counter+1
         
