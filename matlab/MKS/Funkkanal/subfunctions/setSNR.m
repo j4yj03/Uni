@@ -6,7 +6,12 @@ function y=setSNR(x, snrdb)
     M = size(x);
     
     Eb = x/sqrt(2);    % Singalleistung
-    N0 = Eb./snrdb;    % Rauschleistung
+    
+    if (snrdb > 0) 
+        N0 = Eb./snrdb;    % Rauschleistung
+    else
+        N0 = Eb;
+    end
     
     sigma = sqrt(N0/2); % Normierungsfaktor
     

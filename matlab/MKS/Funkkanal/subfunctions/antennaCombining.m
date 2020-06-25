@@ -5,9 +5,12 @@ function y=antennaCombining(x, h, combMethod)
 % als Matrix, sowie die Kombinationsmethode (combMethod)
 % Ausgabeparameter: Der Vektor der kombinierten Singale (y)
 
-    if strcmp(combMethod,'mrc')
-    elseif strcmp(combMethod,'egc')
-    elseif strcmp(combMethod,'sdc')
+    if strcmp(combMethod,'sum')
+    elseif strcmp(combMethod,'MRC')
+    elseif strcmp(combMethod,'EGC')
+    elseif strcmp(combMethod,'SDC')
+        %selection diversity r
+        %kanalkoeffizienten mit der größten amplitude
     else
         error(['Unknown combination method: ' convmtrx]);
     end

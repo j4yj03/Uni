@@ -11,7 +11,7 @@ clear variables; % clear all variables
 %% global simulation parameters
 ebN0dB = 0:30; % SNR (per bit) in dB
 K=1;        % Rice K-Faktor (P_LOS / P_NLOS)
-Nr = 1:5; %Anzahl der Antennen
+Nr = 3; %Anzahl der Antennen
 
 
 nMinErr=100;
@@ -64,7 +64,7 @@ for i=1:length(esN0dB)
             mappedSymbols = bitMapper(bits,constellation);
 
             % Kanal: Symbole mit Kanalkoeffizient kompensiert
-            compensatedSymbols=fadingChannel(i,mappedSymbols,esN0dB(i), K, k);
+            compensatedSymbols=fadingChannel(i,mappedSymbols,esN0dB(i), K, Nr);
 
             % Kanalkoeffizienten sind bekannt, das der Kanal ideal geschaetz wurde
             % entschiedene Symbole mit mittlerer Leistung Skaliert
