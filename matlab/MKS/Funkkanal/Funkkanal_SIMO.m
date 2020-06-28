@@ -48,7 +48,7 @@ anzFehler=0;i=1;bits=zeros(1,nBitsPerLoop);
 % ENDE global simulation parameters
 % =========================================================================
 %% simulations loop...
-for i=1:length(esN0dB)
+for i=1:2%length(esN0dB)
     for k=Nr
         tic
         totalFehler=0;
@@ -64,7 +64,7 @@ for i=1:length(esN0dB)
             mappedSymbols = bitMapper(bits,constellation);
 
             % Kanal: Symbole mit Kanalkoeffizient kompensiert
-            compensatedSymbols=fadingChannel(i,mappedSymbols,esN0dB(i), K, Nr);
+            compensatedSymbols=fadingChannel(i,mappedSymbols,esN0lin(i), K, Nr);
 
             % Kanalkoeffizienten sind bekannt, das der Kanal ideal geschaetz wurde
             % entschiedene Symbole mit mittlerer Leistung Skaliert

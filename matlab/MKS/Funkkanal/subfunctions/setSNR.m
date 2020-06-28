@@ -1,14 +1,15 @@
-function y=setSNR(x, snrdb)
+function y=setSNR(x, snrlin)
 % Funktion zur Überlagerung des Signals mit normalverteilten Rauschen
 % Eingabeparameter: Eingangssignal (x), sowie dem gewünschten Signal-Rauschabstand (snrdb);
 % Ausgabeparameter (y): Eingangssignal mit additiven Rauschen
 
     M = size(x);
     
-    Eb = x/sqrt(2);    % Singalleistung
+    Eb = mean(abs(x).^2);
+    %Eb = x/sqrt(2);    % Singalleistung
     
-    if (snrdb > 0) 
-        N0 = Eb./snrdb;    % Rauschleistung
+    if (snrlin> 0) 
+        N0 = Eb./snrlin;    % Rauschleistung
     else
         N0 = Eb;
     end

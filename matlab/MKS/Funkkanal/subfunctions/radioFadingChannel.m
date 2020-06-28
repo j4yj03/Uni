@@ -11,7 +11,8 @@ function y=radioFadingChannel(i, nSamp, K, Nr)
     mean2 = K/(K+1);   % Leistung der LOS Komponente 
     sigma2 = 1/(K+1);  % Leistung der NLOS Komponent
     omega = 1/sqrt(2);    % Skalierungsfaktor (mittlere Leistung des Signals)
-
+    %omega = 1
+    
     H_NLOS = sqrt(sigma2) * (omega * (randn(Nr,nSamp) + 1j*randn(Nr,nSamp))); % normalisierte h-Koeffizienten NLOS
     H_LOS = sqrt(mean2) * (ones(Nr,nSamp));                                  % h-Koefizient LOS
     
