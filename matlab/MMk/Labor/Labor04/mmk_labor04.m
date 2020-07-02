@@ -59,7 +59,7 @@ frecres=4;
 frec   =5;
 
 
-% loop over frames
+%% loop over frames
 while ~eof
     % read 352x288 8bit YUV image into three uint8 arrays Y, U, V
     [Y_org, U_org, V_org, eof] = readYUV420p(fpr_org, width, height);

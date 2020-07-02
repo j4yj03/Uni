@@ -4,8 +4,8 @@ addpath('subfunctions'); % add directory "subfunctions" to path
 
 %% global simulation parameters
 ebN0dB = 0:30; % SNR (per bit) in dB
-K=1;        % Rice K-Faktor (P_LOS / P_NLOS)
-
+K=0;        % Rice K-Faktor (P_LOS / P_NLOS)
+Nr=1;
 nMinErr=100;
 nBitsPerLoop =50e3; % simulate nBits bits per simulation loop
 nMaxBits= 100*nBitsPerLoop;
@@ -32,6 +32,9 @@ P_RAY_QPSK = 0.5.*(1-(sqrt(ebN0lin./(ebN0lin+1))));
 f = @(x) (((1+K)*sin(x).^2)./((1+K)*(sin(x).^2)+ebN0lin)).*exp(-(K*ebN0lin./((1+K)*sin(x).^2+ebN0lin)));
 P_RICE_QPSK =(1/pi).*integral(f,0,(pi/2),'ArrayValued', true);
 
+%Bitfehlerratenkurven SDC MRC Rayleighkanal
+%f = 
+
 % Initialisierung der Vektoren und Variablen
 ERate=[];
 durchRate=zeros(1,length(esN0dB));
@@ -42,37 +45,43 @@ anzFehler=0;i=1;bits=zeros(1,nBitsPerLoop);
 % =========================================================================
 %% simulations loop...
 for i=1:length(esN0dB)
-    tic
-    totalFehler=0;
-    nProcessedBits=0;
-    j=1;
+    for k=Nr
+        tic
+        totalFehler=0;
+        nProcessedBits=0;
+        j=1;
 
-    sprintf('Runde %d: %.4fdB..', i,esN0dB(i))  % Ausgabe der aktuellen SNR    
-    
-    while(totalFehler < nMinErr && nProcessedBits < nMaxBits)
-        
-        % Erzeugung von Bits und Modulierten Bits
-        bits = generateBits(nBitsPerLoop);
-        mappedSymbols = mapper(bits,constellation);
+        sprintf('Runde %d: %.4fdB..', i,esN0dB(i))  % Ausgabe der aktuellen SNR    
 
-        % Kanal
-        compensatedSymbols=fadingChannel(i,mappedSymbols,esN0dB(i),K);
+        while(totalFehler < nMinErr && nProcessedBits < nMaxBits)
 
-        decidedSymbols=decision(compensatedSymbols.*power,constellation);
-        
-        demappedBits=demapper(decidedSymbols,constellation);
-        
-        % Fehlerraten ermitteln und zwischenspeichern
-        [anzFehler, fehlerRate] = countErrors(demappedBits,bits);
-        totalFehler=totalFehler+anzFehler;
-        nProcessedBits=nProcessedBits+nBitsPerLoop;
-        ERate(j)=fehlerRate;
-        j=j+1;
+            % Erzeugung von Bits und Modulierten Bits
+            bits = generateBits(nBitsPerLoop);
+            mappedSymbols = mapper(bits,constellation);
+
+            % Kanal: Symbole mit Kanalkoeffizient kompensiert
+            compensatedSymbols=fadingChannel(i,mappedSymbols,esN0lin(i), K, Nr);
+
+            % Kanalkoeffizienten sind bekannt, das der Kanal ideal geschaetz wurde
+            % entschiedene Symbole mit mittlerer Leistung Skaliert
+
+            decidedSymbols=decision(compensatedSymbols.*power,constellation);
+
+            demappedBits=demapper(decidedSymbols,constellation);
+
+            % Fehlerraten ermitteln und zwischenspeichern
+            [anzFehler, fehlerRate] = countErrors(demappedBits,bits);
+            totalFehler=totalFehler+anzFehler;
+            nProcessedBits=nProcessedBits+nBitsPerLoop;
+            ERate(j)=fehlerRate;
+            j=j+1;
+
+        end
+        durchRate(i) = mean(ERate); % durchschnittliche Fehlerrate wird ermittelt
+        sprintf('Fehlerrate: %.10f%%..', durchRate(i)*100)  % Ausgabe der Fehlerrate
+        clear ERate;    % aktuelle Fehlerrate wird geloescht
+        toc
     end
-    durchRate(i) = mean(ERate); % durchschnittliche Fehlerrate wird ermittelt
-    sprintf('Fehlerrate: %.10f%%..', durchRate(i)*100)  % Ausgabe der Fehlerrate
-    clear ERate;    % aktuelle Fehlerrate wird geloescht
-    toc
 end
 
 % Ergebnisse plotten

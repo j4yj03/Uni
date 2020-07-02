@@ -11,11 +11,9 @@ clear variables; % clear all variables
 %% global simulation parameters
 ebN0dB = 0:30; % SNR (per bit) in dB
 K=1;        % Rice K-Faktor (P_LOS / P_NLOS)
-Nr = 1; %Anzahl der Antennen
-
 
 nMinErr=100;
-nBitsPerLoop =50e3; % simulate nBits bits per simulation loop
+nBitsPerLoop =50e2; % simulate nBits bits per simulation loop
 nMaxBits= 100*nBitsPerLoop;
 constellation = [-1-1j, 1-1j, -1+1j, 1+1j]; % constellation of the modulation format here: QPSK with Gray mapping
 %constellation = [-3-3j,-1-3j,1-3j,3-3j,-3-1j,-1-1j,1-1j,3-1j,-3+1j,-1+1j,1+1j,3+1j,-3+3j,-1+3j,1+3j,3+3j];  %constellation for 16QAM
@@ -23,6 +21,7 @@ constellation = [-1-1j, 1-1j, -1+1j, 1+1j]; % constellation of the modulation fo
 
 %%=========================================================================
 power = rms(constellation);
+%power = sqrt(mean(constellation.^2));
 
 ebN0lin = 10.^(ebN0dB/10);   % Lineare SNR; wird fuer die Berechnung der theoretischen BER benoetigt
 esN0lin = ebN0lin * log2(length(constellation));    % SNR pro Symbol (linear)
@@ -48,44 +47,40 @@ anzFehler=0;i=1;bits=zeros(1,nBitsPerLoop);
 % ENDE global simulation parameters
 % =========================================================================
 %% simulations loop...
-for i=1:2%length(esN0dB)
-    for k=Nr
-        tic
-        totalFehler=0;
-        nProcessedBits=0;
-        j=1;
+for i=1:length(esN0dB)
+    tic
+    totalFehler=0;
+    nProcessedBits=0;
+    j=1;
 
-        sprintf('Runde %d: %.4fdB..', i,esN0dB(i))  % Ausgabe der aktuellen SNR    
+    sprintf('Runde %d: %.4fdB..', i,esN0dB(i))  % Ausgabe der aktuellen SNR    
+    
+    while(totalFehler < nMinErr && nProcessedBits < nMaxBits)
+        
+        % Erzeugung von Bits und Modulierten Bits
+        bits = generateBits(nBitsPerLoop);
+        mappedSymbols = bitMapper(bits,constellation);
 
-        while(totalFehler < nMinErr && nProcessedBits < nMaxBits)
-
-            % Erzeugung von Bits und Modulierten Bits
-            bits = generateBits(nBitsPerLoop);
-            mappedSymbols = bitMapper(bits,constellation);
-
-            % Kanal: Symbole mit Kanalkoeffizient kompensiert
-            compensatedSymbols=fadingChannel(i, mappedSymbols, esN0lin(i), K, Nr);
-
-            % Kanalkoeffizienten sind bekannt, das der Kanal ideal geschaetz wurde
-            % entschiedene Symbole mit mittlerer Leistung Skaliert
-
-            decidedSymbols=decision(compensatedSymbols.*power,constellation);
-
-            demappedBits=demapper(decidedSymbols,constellation);
-
-            % Fehlerraten ermitteln und zwischenspeichern
-            [anzFehler, fehlerRate] = countErrors(demappedBits,bits);
-            totalFehler=totalFehler+anzFehler;
-            nProcessedBits=nProcessedBits+nBitsPerLoop;
-            ERate(j)=fehlerRate;
-            j=j+1;
-
-        end
-        durchRate(i) = mean(ERate); % durchschnittliche Fehlerrate wird ermittelt
-        sprintf('Fehlerrate: %.10f%%..', durchRate(i)*100)  % Ausgabe der Fehlerrate
-        clear ERate;    % aktuelle Fehlerrate wird geloescht
-        toc
+        % Kanal: Symbole mit Kanalkoeffizient kompensiert
+        compensatedSymbols=fadingChannel(i, mappedSymbols, esN0dB(i), K);
+		
+		% Kanalkoeffizienten sind bekannt, das der Kanal ideal geschaetz wurde
+		% entschiedene Symbole mit mittlerer Leistung Skaliert
+        decidedSymbols=decision(compensatedSymbols.*power,constellation);
+        
+        demappedBits=demapper(decidedSymbols,constellation);
+        
+        % Fehlerraten ermitteln und zwischenspeichern
+        [anzFehler, fehlerRate] = countErrors(demappedBits,bits);
+        totalFehler=totalFehler+anzFehler;
+        nProcessedBits=nProcessedBits+nBitsPerLoop;
+        ERate(j)=fehlerRate;
+        j=j+1;
     end
+    durchRate(i) = mean(ERate); % durchschnittliche Fehlerrate wird ermittelt
+    sprintf('Anzahl Fehler: %d von %d Bits \nFehlerrate: %.10f%%..', totalFehler, nProcessedBits, durchRate(i)*100)  % Ausgabe der Fehlerrate
+    clear ERate;    % aktuelle Fehlerrate wird geloescht
+    toc
 end
 
 % Ergebnisse plotten
@@ -104,83 +99,69 @@ xlim([0 30]);
 % Funktionen
 % =========================================================================
 % =========================================================================
-function y=fadingChannel(i,mappedSymbols, SNR, K, Nr)
+function y=fadingChannel(i,mappedSymbols,SNR,K)
 % Funktion zu Simulation des Funkkanals
 % Eingabeparameter: da die Koeffizienten nur einmal geplottet werden sollen
-% wird die Laufvariable i benötigt. Die gemappten Symbole (mappedSymbols),
-% der gewünschte Signal-Rauschabstand (SNR) sowie der gewünschte
+% wird die Laufvariable i benÃ¶tigt. Die gemappten Symbole (mappedSymbols),
+% der gewÃ¼nschte Signal-Rauschabstand (SNR) sowie der gewÃ¼nschte
 % K-Parameter (K);
 % Ausgabeparameter: es werden die kompensierten Symbole ausgegeben (y)
     if (~exist('K','var'))      % wenn kein K angegeben ist wird ein Reyleighkanal simuliert
         K=0;
     end
-    
-    nSamp = length(mappedSymbols);
-    
-    h = radioFadingChannel(i, nSamp, K, Nr); % Kanalkoeffizienten generieren
+    h=radioFadingChannel(i,length(mappedSymbols),K); % Kanalkoeffizienten generieren
 	
     transmittedSymbols = mappedSymbols.*h;         % Symbole werden ueber den Kanal "gesendet"
 	
-    receivedsymbols = setSNR(transmittedSymbols,SNR);  % additives Kanalrauschen durch senden ueber einen Kanal
+    receivedsymbols=setSNR(transmittedSymbols, SNR);  % additives Kanalrauschen durch senden ueber einen Kanal
+    %receivedsymbols=awgn(transmittedSymbols,SNR,'measured');  % additives Kanalrauschen durch senden ueber einen Kanal
 	
-    compensated = receivedsymbols./h;       % Symbole werden kompensiert/entzerrt. h(x) ist bekannt, das der Kanal ideal geschaetzt wurde
-    
-    y = antennaCombining(compensated, h, 'sdc');
+    y = receivedsymbols./h;       % Symbole werden kompensiert/entzerrt. h(x) ist bekannt, das der Kanal ideal geschaetzt wurde
 end
 %==========================================================================
-function y=radioFadingChannel(i, nSamp, K, Nr)
-% Funktion zu Bestimmung der Kanalkoeffizienten
-% Eingabeparameter: die Laufvariable i, sowie die Anzahl der gewünschten
-% Kanalkoeffizienten (nSamp), als auch der K-Parameter (K) und auch die Anzahl
-% der Emfangsantennen (Nr)
-% Ausgabeparameter: Es wird eine Matrix mit den normalverteilten Kanalkoeffizienten
-% ausgegeben
-
-    mean2 = K/(K+1);   % Leistung der LOS Komponente 
-    sigma2 = 1/(K+1);  % Leistung der NLOS Komponent
-    omega = 1/sqrt(2);    % Skalierungsfaktor
-
-    H_NLOS = sqrt(sigma2) * (omega * (randn(Nr, nSamp) + 1j*randn(Nr, nSamp))); % normalisierte h-Koeffizienten NLOS
-    H_LOS = sqrt(mean2) * (ones(Nr, nSamp));                                  % h-Koefizient LOS
-    
-    y = (H_LOS + H_NLOS); % normal verteilte Kanalkoefizienten
-    
-    if (i==1)   % Nur die ersten Kanalkoeffizienten sollen geplottet werden
-        plotCoeff(y(1,:),K)
-    end
-end
-%=======================================================================================================================
-function y=setSNR(x, snrdb)
-% Funktion zur Überlagerung des Signals mit normalverteilten Rauschen
-% Eingabeparameter: Eingangssignal (x), sowie dem gewünschten Signal-Rauschabstand (snrdb);
+function y=setSNR(x, snrlin)
+% Funktion zur Ãœberlagerung des Signals mit normalverteilten Rauschen
+% Eingabeparameter: Eingangssignal (x), sowie dem gewÃ¼nschten Signal-Rauschabstand (snrdb);
 % Ausgabeparameter (y): Eingangssignal mit additiven Rauschen
 
     M = size(x);
     
-    Eb = x/sqrt(2); 
-    N0 = Eb./snrdb;    % Rauschleistung
+    %Eb = mean(abs(x).^2);
+    Eb = x/sqrt(2);    % Singalleistung
+    
+    if (snrlin> 0) 
+        N0 = Eb./snrlin;    % Rauschleistung
+    else
+        N0 = Eb;
+    end
     
     sigma = sqrt(N0/2); % Normierungsfaktor
     
     noise= Eb.* (sigma.* randn(M)+ 1j * sigma.* randn(M)); 
 
+    %y =awgn(x,snrlin,'measured');  % additives Kanalrauschen durch 
     y = x + noise; % additives Kanalrauschen durch senden ueber einen Kanal
 end
-%=======================================================================================================================
-function y=antennaCombining(x, h, combMethod)
-% Funktion zur Bestimmung der Linearkombination der einzelnen
-% Empfangssignale
-% Eingabeparameter: die Antennensignale (x) und die Kanalkoeffizienten (h)
-% als Matrix, sowie die Kombinationsmethode (combMethod)
-% Ausgabeparameter: Der Vektor der kombinierten Singale (y)
+%%=========================================================================
+function y=radioFadingChannel(i,nSamp,K)
+% Funktion zu Bestimmung der Kanalkoeffizienten
+% Eingabeparameter: die Laufvariable i, sowie die Anzahl der gewÃ¼nschten
+% Kanalkoeffizienten (nSamp), als auch der K-Parameter (K)
+% Ausgabeparameter: Es werden die normalverteilten Kanalkoeffizienten
+% ausgegeben
+    mean2 = K/(K+1);   % Leistung der LOS Komponente 
+    sigma2 = 1/(K+1);  % Leistung der NLOS Komponent
+    omega = 1/sqrt(2);    % Skalierungsfaktor
 
-    if strcmp(combMethod,'mrc')
-    elseif strcmp(combMethod,'egc')
-    elseif strcmp(combMethod,'sdc')
-    else
-        error(['Unknown combination method: ' convmtrx]);
+    H_NLOS = sqrt(sigma2) * (omega * (randn(1,nSamp) + 1j*randn(1,nSamp))); % normalisierte h-Koeffizienten NLOS
+    H_LOS = sqrt(mean2) * (ones(1,nSamp));                                  % h-Koefizient LOS
+    
+    y = (H_LOS + H_NLOS); % normal verteilte Kanalkoefizienten
+    
+    if (i==1)   % Nur die ersten Kanalkoeffizienten sollen geplottet werden
+        plotCoeff(y,K)
     end
-    y=0;
+   
 end
 %=======================================================================================================================
 function plotCoeff(coeff,K)
@@ -228,7 +209,7 @@ function y = bitMapper(bits, constellation)
     step = floor(log2(length(constellation)-1))+1; % die Schrittgroesse ist von der Anzahl der Konstellationen abhaengig
     
     if (mod(length(bits),step)~=0)  % Fehlermeldung wenn Bits bei dem Mapvorgang verloren gehen wuerden
-        error('Die Anzahl der pro Durchlauf simulierten Bits muss für dieses Modulationsverfahrer durch %d teilbar sein. Derzeit: %d',step,length(bits));
+        error('Die Anzahl der pro Durchlauf simulierten Bits muss fÃ¼r dieses Modulationsverfahrer durch %d teilbar sein. Derzeit: %d',step,length(bits));
     end
     
     x = zeros(1,floor(length(bits)/step)); % Speicher fuer den Vektor reservieren (wird mit 0en initialisiert)

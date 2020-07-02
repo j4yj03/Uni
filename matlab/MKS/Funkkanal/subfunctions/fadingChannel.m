@@ -15,8 +15,8 @@ function y=fadingChannel(i,mappedSymbols, SNR, K, Nr)
 	
     transmittedSymbols = mappedSymbols.*h;         % Symbole werden ueber den Kanal "gesendet"
 	
-    receivedsymbols = setSNR(transmittedSymbols,SNR);  % additives Kanalrauschen durch senden ueber einen Kanal
-	
+    %receivedsymbols = setSNR(transmittedSymbols,SNR);  % additives Kanalrauschen durch senden ueber einen Kanal
+	receivedsymbols = awgn(transmittedSymbols,SNR,'measured');  % additives Kanalrauschen durch 
     
     y = receivedsymbols./h;       % Symbole werden kompensiert/entzerrt. h(x) ist bekannt, das der Kanal ideal geschaetzt wurde
 

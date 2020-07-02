@@ -5,8 +5,8 @@ function y=setSNR(x, snrlin)
 
     M = size(x);
     
-    Eb = mean(abs(x).^2);
-    %Eb = x/sqrt(2);    % Singalleistung
+    %Eb = mean(abs(x).^2);
+    Eb = x/sqrt(2);    % Singalleistung
     
     if (snrlin> 0) 
         N0 = Eb./snrlin;    % Rauschleistung
@@ -18,5 +18,6 @@ function y=setSNR(x, snrlin)
     
     noise= Eb.* (sigma.* randn(M)+ 1j * sigma.* randn(M)); 
 
+    %y =awgn(x,snrlin,'measured');  % additives Kanalrauschen durch 
     y = x + noise; % additives Kanalrauschen durch senden ueber einen Kanal
 end

@@ -20,5 +20,5 @@ function plotCoeff(coeff,K)
     histogram(x1,'Normalization','pdf');
     grid on;
     legend('berechnet')
-    z = mean(abs(coeff).^2)
+    Mean = mean(abs(coeff).^2)
 end
