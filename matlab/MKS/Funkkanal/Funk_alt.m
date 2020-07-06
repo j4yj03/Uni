@@ -11,11 +11,11 @@
 %% global simulation parameters
 ebN0dB = 0:15; % SNR (per bit) in dB
 K=5;        % Rice K-Faktor (P_LOS / P_NLOS)
-Nr=5;       % Anzahl der Antennen
+Nr=2;       % Anzahl der Antennen
 combMethod = 'mrc'; % 'mrc' 'egc' 'sdc' 'sum'
 
 nMinErr=100;
-nBitsPerLoop =50e3; % simulate nBits bits per simulation loop
+nBitsPerLoop =50e2; % simulate nBits bits per simulation loop
 nMaxBits= 100*nBitsPerLoop;
 constellation = [-1-1j, 1-1j, -1+1j, 1+1j]; % constellation of the modulation format here: QPSK with Gray mapping
 %constellation = [-3-3j,-1-3j,1-3j,3-3j,-3-1j,-1-1j,1-1j,3-1j,-3+1j,-1+1j,1+1j,3+1j,-3+3j,-1+3j,1+3j,3+3j];  %constellation for 16QAM
@@ -80,7 +80,7 @@ for i=1:length(esN0dB)
 		
 		% Kanalkoeffizienten sind bekannt, das der Kanal ideal geschaetz wurde
 		% entschiedene Symbole mit mittlerer Leistung Skaliert
-        decidedSymbols=decision(compensatedSymbols.*power,constellation);
+        decidedSymbols=decision(compensatedSymbols.*power ,constellation);
         
         demappedBits=demapper(decidedSymbols,constellation);
         
@@ -104,7 +104,7 @@ figure('Name','Werte');
 semilogy(ebN0dB, P_AWGN_QPSK, '-r',ebN0dB, berfading(ebN0dB,'qam',length(constellation),Nr,K), '-c', ebN0dB, durchRate, 'r.');
 
 %legend('AWGN','theoretisch SDC','theoretisch MRC','numerisch berechnet');
-legend('AWGN','theoretisch MRC','numerisch berechnet');
+legend('AWGN','berfading','numerisch berechnet');
 
 hold on;
 grid on;
@@ -128,11 +128,11 @@ function y=fadingChannel(i, mappedSymbols, SNR, K, Nr, combMethod)
     if (~exist('K','var'))      % wenn kein K angegeben ist wird ein Reyleighkanal simuliert
         K=0;
     end
-    h=radioFadingChannel(i, length(mappedSymbols), K, Nr); % Kanalkoeffizienten generieren
+    h = radioFadingChannel(i, length(mappedSymbols), K, Nr); % Kanalkoeffizienten generieren
 	
     transmittedSymbols = mappedSymbols.*h;         % Symbole werden ueber den Kanal "gesendet"
 	
-    receivedsymbols=setSNR(transmittedSymbols, SNR);  % additives Kanalrauschen durch senden ueber einen Kanal
+    receivedsymbols=setSNR(transmittedSymbols, SNR, Nr);  % additives Kanalrauschen durch senden ueber einen Kanal
     %receivedsymbols=awgn(transmittedSymbols,SNR,'measured');  % additives Kanalrauschen durch senden ueber einen Kanal
 	
     %y = receivedsymbols./h;       % Symbole werden kompensiert/entzerrt. h(x) ist bekannt, das der Kanal ideal geschaetzt wurde
@@ -179,7 +179,21 @@ function y=antennaCombining(x, h, combMethod)
     end
 end
 %==========================================================================
-function y=setSNR(x, snrdb)
+function y=setSNR2(x, snrdb, Nr)
+% Funktion zur Überlagerung des Signals mit normalverteilten Rauschen
+% Eingabeparameter: Eingangssignal (x), sowie dem gewünschten Signal-Rauschabstand (snrdb);
+% Ausgabeparameter (y): Eingangssignal mit additiven Rauschen
+
+    M = size(x);
+    
+    N0 = (1/10^(snrdb/10)) / Nr; %Rauschleistung
+    
+    noise = sqrt(N0).* (randn(M)+ 1j * randn(M)); 
+
+    y = x + noise; % additives Kanalrauschen durch senden ueber einen Kanal
+end
+
+function y=setSNR(x, snrdb, Nr)
 % Funktion zur Überlagerung des Signals mit normalverteilten Rauschen
 % Eingabeparameter: Eingangssignal (x), sowie dem gewünschten Signal-Rauschabstand (snrdb);
 % Ausgabeparameter (y): Eingangssignal mit additiven Rauschen
@@ -193,7 +207,7 @@ function y=setSNR(x, snrdb)
     y = x + noise; % additives Kanalrauschen durch senden ueber einen Kanal
 end
 %%=========================================================================
-function y=radioFadingChannel(i, nSamp, K, Nr)
+function y=radioFadingChannel2(i, nSamp, K, Nr)
 % Funktion zu Bestimmung der Kanalkoeffizienten
 % Eingabeparameter: die Laufvariable i, sowie die Anzahl der gewünschten
 % Kanalkoeffizienten (nSamp), als auch der K-Parameter (K)
@@ -201,6 +215,7 @@ function y=radioFadingChannel(i, nSamp, K, Nr)
 % ausgegeben
     mean2 = K/(K+1)/Nr;   % Leistung der LOS Komponente auf einzelne Antennen verteilt
     sigma2 = 1/(K+1)/Nr;  % Leistung der NLOS Komponent auf einzelne Antennen verteilt
+    
     omega = 1/sqrt(2);    % Skalierungsfaktor
 
     H_NLOS = sqrt(sigma2) * (omega * (randn(Nr, nSamp) + 1j*randn(Nr, nSamp))); % normalisierte h-Koeffizienten NLOS
@@ -215,6 +230,28 @@ function y=radioFadingChannel(i, nSamp, K, Nr)
     end
    
 end
+
+function y=radioFadingChannel(i, nSamp, K, Nr)
+
+    NLOS = randn(Nr,nSamp)+1j.*randn(Nr,nSamp);
+    LOS = sqrt(K.*mean(abs(NLOS).^2)).*exp(1j*2*pi*randn(Nr, nSamp));
+    
+    h = LOS + NLOS;
+    P_mean=1/Nr;
+    % Calculating Alpha as mean power scalar for z and elementwise multiply
+    % it to symbols 
+    y=h.*setMeanPower(h,P_mean);
+end
+
+function y = setMeanPower(x,P)
+
+    % P ist die Leistung, auf die normiert werden soll
+    % x ist ein Vektor, der die unnormierten Kanalkoeffizienten enthält
+    % y ist der Normierungsfaktor Alpha (Skalar)
+    y = sqrt(P./mean(abs(x).^2,2));
+end
+
+
 %=======================================================================================================================
 function plotCoeff(coeff, K, Nr)
 % Eingabeparameter: der Vektor mit den Koeffizienten (coeff), sowie der 
@@ -269,14 +306,14 @@ function y = bitMapper(bits, constellation)
     
     for i=1:step:length(bits)-(step-1)
         dec = bi2de(bits(i:i+(step-1)),'left-msb'); % es werden je nach Modulationsverfahren mehrere bits interpretiert
-        x(zaehler) = constellation(dec+1);    %Vektor wird an jeder Stelle
+        x(zaehler) = constellation(dec+1);    %Vektor wird an jeder Stelle mit entsprechenden KOnstelationspunkten gefüllt
         zaehler=zaehler+1;
     end
 
     y=x;    %Vektor wird uebergeben
 end
  %======================================================================================================================
-function y = decision(receivedSymbols,constellation)
+function y = decision2(receivedSymbols,constellation)
 % Funktion zur zuordnung der empfangenden Symbole auf einen
 % Konstellationspunkt
 % EIngabeparameter: die empfangenen Symbole (receivedSymbols) als Vektor,
@@ -295,8 +332,23 @@ function y = decision(receivedSymbols,constellation)
 
     y=x; %Vektor wird uebergeben
 end
+function y = decision(receivedSymbols,constellation)
+% Funktion zur zuordnung der empfangenden Symbole auf einen
+% Konstellationspunkt
+% EIngabeparameter: die empfangenen Symbole (receivedSymbols) als Vektor,
+% sowie die vom Modulationsformat gegebenen Konstellationspunkte;
+% Ausgabeparameter: die entschiedenen Symbole (y)
+    Symbols = transpose(receivedSymbols);
+    
+    x=bsxfun(@minus,Symbols, constellation); 
+    
+    for i=1:1:length(x)
+       [~,col] = find(x(i,:)==min(x(i,:)));
+       y(1,i) = constellation(1,col);
+    end
+end
  %=========================================================================
-function y = demapper(symbols,constellation)
+function y = demapper2(symbols,constellation)
 % Funktion zur Umwandlung der empfangenen Symbole in entrepchende Bits
 % Eingabeparameter: die entschiedenen Symbole (symbols) als Vektor, die vom
 % Modulationsformat gegebenen Konstellationspunkte;
@@ -318,6 +370,32 @@ function y = demapper(symbols,constellation)
 
     y=x; %Vektor uebergeben
 end
+
+
+function y = demapper(symbols, constellation)
+
+    binary=zeros([length(symbols),2]);
+    
+    step = log2(length(constellation));
+    if step==2
+        for i = 1:1:length(symbols)
+            [~,col]=find(constellation(1,:)==symbols(1,i));
+            if col>2
+                binary(i,:)=de2bi(col-1,'left-msb');
+            else
+                binary(i,2)=de2bi(col-1);
+            end
+        end
+        elseif step==4
+            error('This function is not developed yet.')
+        elseif step==8
+            error('This function is not developed yet.')
+    else
+            error('Just how :0?!')           
+    end
+    y=reshape(transpose(binary),[1,step*length(binary)]);
+end
+
  %=========================================================================
 function [nErr, ber] = countErrors(receivedBits, sendBits)
 % Funktion zur Ermittlung der Anzahl der Fehler, als auch der Bitfehlerrate
