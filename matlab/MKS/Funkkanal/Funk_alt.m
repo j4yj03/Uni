@@ -1,16 +1,16 @@
 % Radio communication system simulation script
 % =========================================================================
-% Author: Sidney Goehler (544131) HTW Berlin SoSe 20
+% Author: Sidney Goehler (544131) und  HTW Berlin SoSe 20
 % Multikanalsysteme - Prof. Dr.-Ing. Markus Noelle
 % =========================================================================
 
-%clc; 
-%clear variables; % clear all variables
+clc; 
+clear all; % clear all variables
 %addpath('subfunctions'); % add directory "subfunctions" to path
 
 %% global simulation parameters
 ebN0dB = 0:15; % SNR (per bit) in dB
-K=5;        % Rice K-Faktor (P_LOS / P_NLOS)
+K=3;        % Rice K-Faktor (P_LOS / P_NLOS)
 Nr=2;       % Anzahl der Antennen
 combMethod = 'mrc'; % 'mrc' 'egc' 'sdc' 'sum'
 
@@ -233,14 +233,25 @@ end
 
 function y=radioFadingChannel(i, nSamp, K, Nr)
 
-    NLOS = randn(Nr,nSamp)+1j.*randn(Nr,nSamp);
-    LOS = sqrt(K.*mean(abs(NLOS).^2)).*exp(1j*2*pi*randn(Nr, nSamp));
+    for index = 1:1:Nr
+        NLOS(index,:) = randn(1,nSamp)+1j.*randn(1,nSamp);
+        LOS(index,:)= sqrt(K.*mean(abs(NLOS(index,:)).^2)).*exp(1j*2*pi*randn(1, nSamp));
+    end
     
-    h = LOS + NLOS;
+    h = LOS+NLOS;
     P_mean=1/Nr;
     % Calculating Alpha as mean power scalar for z and elementwise multiply
     % it to symbols 
     y=h.*setMeanPower(h,P_mean);
+    
+function y = setMeanPower(x,P)
+
+% P ist die Leistung, auf die normiert werden soll
+% x ist ein Vektor, der die unnormierten Kanalkoeffizienten enthält
+% y ist der Normierungsfaktor Alpha (Skalar)
+y = sqrt(P./mean(abs(x).^2,2));
+end
+
 end
 
 function y = setMeanPower(x,P)
