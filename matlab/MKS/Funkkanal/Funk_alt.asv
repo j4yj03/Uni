@@ -1,7 +1,7 @@
 % Radio communication system simulation script
 % =========================================================================
-% Author: Sidney Goehler (544131) HTW Berlin SoSe 20
-% Multikanalsysteme - Prof. Dr.-Ing. Markus Noelle
+% Author: Sidney Goehler (544131) HTW Berlin WiSe 18/19
+% Digitale Funksysteme - Prof. Dr.-Ing. Markus Noelle
 % =========================================================================
 
 %clc; 
@@ -9,13 +9,13 @@
 %addpath('subfunctions'); % add directory "subfunctions" to path
 
 %% global simulation parameters
-ebN0dB = 0:15; % SNR (per bit) in dB
-K=5;        % Rice K-Faktor (P_LOS / P_NLOS)
-Nr=5;       % Anzahl der Antennen
-combMethod = 'mrc'; % 'mrc' 'egc' 'sdc' 'sum'
+ebN0dB = 0:20; % SNR (per bit) in dB
+K=0;        % Rice K-Faktor (P_LOS / P_NLOS)
+Nr=2;       % Anzahl der Antennen
+combMethod = 'sdc'; % 'mrc' 'egc' 'sdc' 'sum'
 
 nMinErr=100;
-nBitsPerLoop =50e3; % simulate nBits bits per simulation loop
+nBitsPerLoop =50e2; % simulate nBits bits per simulation loop
 nMaxBits= 100*nBitsPerLoop;
 constellation = [-1-1j, 1-1j, -1+1j, 1+1j]; % constellation of the modulation format here: QPSK with Gray mapping
 %constellation = [-3-3j,-1-3j,1-3j,3-3j,-3-1j,-1-1j,1-1j,3-1j,-3+1j,-1+1j,1+1j,3+1j,-3+3j,-1+3j,1+3j,3+3j];  %constellation for 16QAM
@@ -45,10 +45,9 @@ Q = @(y) 0.5 * erfc(y/sqrt(2));
 f = @(x) Q(sqrt(2*ebN0lin*x)).*(1-exp(-x)).^(Nr-1).*exp(-x);
 P_RAY_QPSK_SDC = Nr.* integral(f, 0, Inf, 'ArrayValued', true);
 
-%Ray MRC
-Q = @(y) 0.5 * erfc(y/sqrt(2));
-f = @(x) Q(sqrt(2*ebN0lin*x)).*x^(Nr-1).* exp(-x);
-P_RAY_QPSK_MRC = (1/gamma(Nr)).* integral(f, 0, Inf, 'ArrayValued', true);
+0.5*erfc(sqrt(2.*ebN0dB.*x)./sqrt(2))
+f = @(x) 0.5*erfc(sqrt(2.*ebN0dB.*x)./sqrt(2)).*x^(Nr-1)+exp(-x);
+
 
 
 % Initialisierung der Vektoren und Variablen
@@ -100,17 +99,15 @@ end
 % Ergebnisse plotten
 figure('Name','Werte');
 %semilogy(ebN0dB,P_AWGN_QPSK,'-r',ebN0dB,P_RICE_QPSK,'-c',ebN0dB,durchRate,'r.');
-%semilogy(ebN0dB,P_AWGN_QPSK,'-r',ebN0dB,P_RAY_QPSK_SDC,'-c', ebN0dB, P_RAY_QPSK_MRC,'-g', ebN0dB,durchRate,'r.');
-semilogy(ebN0dB, P_AWGN_QPSK, '-r',ebN0dB, berfading(ebN0dB,'qam',length(constellation),Nr,K), '-c', ebN0dB, durchRate, 'r.');
+semilogy(ebN0dB,P_AWGN_QPSK,'-r',ebN0dB,P_RAY_QPSK_SDC,'-c',ebN0dB,durchRate,'r.');
+%semilogy(ebN0dB, P_AWGN_QPSK, '-r',ebN0dB, berfading(ebN0dB,'oqpsk',length(constellation),Nr,K), '-c', ebN0dB, durchRate, 'r.');
 
-%legend('AWGN','theoretisch SDC','theoretisch MRC','numerisch berechnet');
-legend('AWGN','theoretisch MRC','numerisch berechnet');
-
+legend('AWGN','theoretisch','numerisch berechnet');
 hold on;
 grid on;
 grid minor;
 %setzt die Grenzen der y-Achse & x-Achse
-ylim([10^(-6) 10^0]);
+ylim([10^(-7) 10^0]);
 xlim([0 30]);
     
 %% ========================================================================
