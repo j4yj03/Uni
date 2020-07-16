@@ -99,6 +99,38 @@ while ~eof
     
     %% TODO:
     % - Add loop from Labor03
+     for i = 1:8:size(Y_res,1)
+        for j = 1:8:size(Y_res,2)
+
+            f = Y_res(i:i+7, j:j+7);
+            %sprintf("%dx%d: @ %d %d",size(f),i,j)
+            F = dct2(f);
+
+            QF = round((F.*16)./(2*q_scale.*Q_I));
+            QF(1,1) = round(F(1,1)/8);
+
+    %       zig-zag scan
+            for u = 1:8
+                for v = 1:8
+                    QFS(ZZscan(u,v)+1) = QF(u,v);
+                end
+            end
+
+    %       inverse zig-zag scan
+            for u = 1:8
+                for v = 1:8
+                    QF(u,v) = QFS(ZZscan(u,v)+1);
+                end
+            end
+
+            F = fix((QF.*q_scale.*Q_I)/ 8);
+            F(1,1) = QF(1,1)* 8;
+            f_rec = idct2(F);
+            
+            Y_recres(i:i+7, j:j+7) = min(max(f_rec, -255), 255);
+        end
+    end
+    
     % - Inside the loop
     %    a) replace at the beginning before 1.: Y_org by Y_res    
     %    b) remove in 7.: clipping f_rec to 0..255 range 

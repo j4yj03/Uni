@@ -9,10 +9,10 @@ clear all; % clear all variables
 %addpath('subfunctions'); % add directory "subfunctions" to path
 
 %% global simulation parameters
-ebN0dB = 0:15; % SNR (per bit) in dB
-K=3;        % Rice K-Faktor (P_LOS / P_NLOS)
+ebN0dB = 0:30; % SNR (per bit) in dB
+K=0;        % Rice K-Faktor (P_LOS / P_NLOS)
 Nr=2;       % Anzahl der Antennen
-combMethod = 'mrc'; % 'mrc' 'egc' 'sdc' 'sum'
+combMethod = 'sdc'; % 'mrc' 'egc' 'sdc' 'sum'
 
 nMinErr=100;
 nBitsPerLoop =50e2; % simulate nBits bits per simulation loop
@@ -100,11 +100,12 @@ end
 % Ergebnisse plotten
 figure('Name','Werte');
 %semilogy(ebN0dB,P_AWGN_QPSK,'-r',ebN0dB,P_RICE_QPSK,'-c',ebN0dB,durchRate,'r.');
-%semilogy(ebN0dB,P_AWGN_QPSK,'-r',ebN0dB,P_RAY_QPSK_SDC,'-c', ebN0dB, P_RAY_QPSK_MRC,'-g', ebN0dB,durchRate,'r.');
-semilogy(ebN0dB, P_AWGN_QPSK, '-r',ebN0dB, berfading(ebN0dB,'qam',length(constellation),Nr,K), '-c', ebN0dB, durchRate, 'r.');
+semilogy(ebN0dB,P_AWGN_QPSK,'-r',ebN0dB,P_RAY_QPSK_SDC,'-c', ebN0dB,durchRate,'r.');
+semilogy(ebN0dB,P_AWGN_QPSK,'-r',ebN0dB,P_RAY_QPSK_SDC,'-c', ebN0dB,durchRate,'r.');
+%semilogy(ebN0dB, P_AWGN_QPSK, '-r',ebN0dB, berfading(ebN0dB,'qam',length(constellation),Nr,K), '-c', ebN0dB, durchRate, 'r.');
 
 %legend('AWGN','theoretisch SDC','theoretisch MRC','numerisch berechnet');
-legend('AWGN','berfading','numerisch berechnet');
+legend('AWGN','fading','numerisch berechnet');
 
 hold on;
 grid on;
@@ -228,7 +229,6 @@ function y=radioFadingChannel2(i, nSamp, K, Nr)
     if (i==1)   % Nur die ersten Kanalkoeffizienten sollen geplottet werden
         plotCoeff(y, K, Nr)
     end
-   
 end
 
 function y=radioFadingChannel(i, nSamp, K, Nr)
@@ -243,23 +243,14 @@ function y=radioFadingChannel(i, nSamp, K, Nr)
     % Calculating Alpha as mean power scalar for z and elementwise multiply
     % it to symbols 
     y=h.*setMeanPower(h,P_mean);
-    
+end
+
 function y = setMeanPower(x,P)
 
 % P ist die Leistung, auf die normiert werden soll
 % x ist ein Vektor, der die unnormierten Kanalkoeffizienten enthält
 % y ist der Normierungsfaktor Alpha (Skalar)
 y = sqrt(P./mean(abs(x).^2,2));
-end
-
-end
-
-function y = setMeanPower(x,P)
-
-    % P ist die Leistung, auf die normiert werden soll
-    % x ist ein Vektor, der die unnormierten Kanalkoeffizienten enthält
-    % y ist der Normierungsfaktor Alpha (Skalar)
-    y = sqrt(P./mean(abs(x).^2,2));
 end
 
 
@@ -387,7 +378,7 @@ function y = demapper(symbols, constellation)
 
     binary=zeros([length(symbols),2]);
     
-    step = log2(length(constellation));
+    step = floor(log2(length(constellation)-1))+1;
     if step==2
         for i = 1:1:length(symbols)
             [~,col]=find(constellation(1,:)==symbols(1,i));
