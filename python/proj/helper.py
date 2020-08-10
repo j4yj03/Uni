@@ -125,7 +125,8 @@ def clust_eval(y_pred, y_train, name=""):
 #######################################################################################################################
 def eval_gmm(model, good, goodtrain, goodtest, goodvalid, defect, thres):
 
-    y_pred= np.ones(len(Dpfft))
+    y_pred= np.ones(len(defect))
+    y_pred_g= np.ones(len(good))
 
     # predict on train and estimate treshold
     densities = model.score_samples(goodtrain)
@@ -159,7 +160,9 @@ def eval_gmm(model, good, goodtrain, goodtest, goodvalid, defect, thres):
     outliers = good[densities >= density_threshold]
 
 
-    print('######################\nGood Lines total:',len(outliers),'\n\n')
+    print('######################\nestimated on Good Lines DS:',len(outliers),'\n\n')
+    y_pred_g[outliers.index] = 0
+    
     
     # estimate density of goodlines
     densities = model.score_samples(good)
@@ -171,10 +174,10 @@ def eval_gmm(model, good, goodtrain, goodtest, goodvalid, defect, thres):
     outliers_defect = defect[densities_defect >= density_threshold]
 
 
-    print('Defect Lines:',len(outliers_defect))
+    print('######################\nestimated on Defect Lines DS:',len(outliers_defect))
     y_pred[outliers_defect.index] = 0
     
-    return y_pred
+    return y_pred, y_pred_g
 #######################################################################################################################
 #######################################################################################################################
 def ae_classy(mse, threshold):
@@ -250,8 +253,9 @@ def ae_reconstruct_fullset(lab, sets, model):
         plt.plot(error_df['reconstruction_error'], label=f'{lab[ind]}', color=color)
         losses.append(error_df['reconstruction_error'].to_numpy())
 
+    loss = error_df[1:]['reconstruction_error']
 
-    threshold = np.max(error_df[1:]['reconstruction_error'])
+    threshold = np.max(loss)-(np.max(loss)/5)
 
 
     plt.axhline(threshold,-1,17100, color='tab:grey', linestyle='--', lw=2, alpha=0.5, label='threshold')
