@@ -1,0 +1,22 @@
+Version 4.0 HI-TECH Software Intermediate Code
+"50 mcc_generated_files/device_config.c
+[p x FOSC  =  INTOSC     ]
+"51
+[p x BOREN  =  OFF     ]
+"52
+[p x WDTE  =  OFF     ]
+"53
+[p x PWRTE  =  OFF     ]
+"54
+[p x MCLRE  =  OFF    ]
+"55
+[p x CP  =  OFF     ]
+"56
+[p x LVP  =  OFF     ]
+"57
+[p x LPBOR  =  OFF     ]
+"58
+[p x BORV  =  LO     ]
+"59
+[; ;mcc_generated_files/device_config.c: 59: 
+[p x WRT  =  OFF     ]
