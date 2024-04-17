@@ -206,6 +206,9 @@ function y=setSNR(x, snrdb, Nr)
     noise = sqrt(N0).* (randn(M)+ 1j * randn(M)); 
 
     y = x + noise; % additives Kanalrauschen durch senden ueber einen Kanal
+    
+    figure('noise');
+    plot(y);
 end
 %%=========================================================================
 function y=radioFadingChannel2(i, nSamp, K, Nr)
@@ -237,6 +240,9 @@ function y=radioFadingChannel(i, nSamp, K, Nr)
         NLOS(index,:) = randn(1,nSamp)+1j.*randn(1,nSamp);
         LOS(index,:)= sqrt(K.*mean(abs(NLOS(index,:)).^2)).*exp(1j*2*pi*randn(1, nSamp));
     end
+    
+     NLOS = randn(Nr,nSamp)+1j.*randn(Nr,nSamp);
+     LOS= sqrt(K.*mean(abs(NLOS).^2)).*exp(1j*2*pi*randn(Nr, nSamp));
     
     h = LOS+NLOS;
     P_mean=1/Nr;

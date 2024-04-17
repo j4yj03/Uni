@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from scipy import stats
 
-from sklearn.datasets.samples_generator import make_regression
+from sklearn.datasets import make_regression
 
 
 

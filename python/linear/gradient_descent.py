@@ -190,10 +190,9 @@ def LR_gradient_descent_hist(X, y, theta0, nmax=100000, eta=0.0001):
         costs.append(cost)
         counter = i
         #print(len(thetas))
-        if len(thetas)> 10:
-            if np.all(costs[-4:] == cost):
-                print('GD converged!')
-                break
+        if len(thetas)> 10 and np.all(costs[-4:] == cost):
+            print('GD converged!')
+            break
 
     return thetas, costs, preds, counter
 #

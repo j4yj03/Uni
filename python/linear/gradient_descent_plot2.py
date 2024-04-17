@@ -45,8 +45,8 @@ if __name__ == "__main__":
     multi = pd.read_csv("./data/multivariat.csv", sep=',')
     # x1_m = multi['x1'].to_numpy()
     # x2_m = multi['x2'].to_numpy()
-    X_m = multi.iloc[:,0:2].to_numpy()[:40]
-    y_m = multi['y'].to_numpy()[:40]
+    X_m = multi.iloc[:,0:2].to_numpy()[:400]
+    y_m = multi['y'].to_numpy()[:400]
 
     #print(f'{X_m} {y_m}')
 
@@ -77,13 +77,13 @@ if __name__ == "__main__":
     theta0 = np.ones(n)
     #theta0 = np.random.rand(n)
 
-    print(f'Startvektor: {theta0}')
+    #print(f'Startvektor: {theta0}')
 
 
     # theta per normalengleichung
     theta_ridge = ridge.Ridge_fit(Xs2 ,ys, 0)
 
-    print(f'\ntheta_normal:{theta_ridge}\n')
+    #print(f'\ntheta_normal:{theta_ridge}\n')
 
 
     thetas, costs, preds, counter = gd.LR_gradient_descent_hist(Xs2,ys,theta0, eta=0.01)
@@ -92,13 +92,16 @@ if __name__ == "__main__":
 
     print(f'\ntheta_gradient: {theta}\n nach {counter} Iterationen! \n')
 
-    print(f'\n\ndifference: {theta_ridge-theta!s}')#' {np.mean(theta_ridge-theta)!s}\n')
+    #print(f'\n\ndifference: {theta_ridge-theta!s}')#' {np.mean(theta_ridge-theta)!s}\n')
 
     resolution = 0.066
-    print(len(thetas))
-    fig = plt.figure(figsize=(11,9))
 
-    X,Y = np.meshgrid(np.arange(-1, 1, resolution), np.arange(-1, 1, resolution))
+   #print(len(thetas))
+
+
+    
+
+    X, Y = np.meshgrid(np.arange(-1, 1, resolution), np.arange(-1, 1, resolution))
 
     XX = X.flatten()
     YY = Y.flatten()
@@ -132,38 +135,53 @@ if __name__ == "__main__":
 
     zs = np.array(error_mesh)
 
-    print('theta meshgrid ',YYXX[np.where(zs == np.min(zs))], np.min(zs))
+    #print(f'theta errormeshgrid: {zs}')
 
     zs_norm = (zs[:]-np.min(zs, axis=0))/np.ptp(zs, axis=0)
 
-    Z = zs_norm.reshape(XX.shape)
+    Z = zs_norm.reshape(X.shape)#zs_norm.reshape(X.shape)
 
-    ax = Axes3D(fig)
-    print(f'{Z.shape}{X.shape}{Y.shape}')
 
-    cset = ax.plot_surface(X, Y, Z.reshape(X.shape), rstride=1, cstride=1, alpha=0.5, cmap=cm.winter)
+
+
+    fig = plt.figure(figsize=(18, 16))
+
+    ax = plt.axes(projection='3d')
+
+    #ax = Axes3D(fig)
+    #print(f'{X.shape}{Y.shape}{Z.shape}')
+
+    cset = ax.plot_surface(X, Y, Z, alpha=0.5, cmap='PuBu')
+    #cset = ax.plot_trisurf(X, Y, Z)
     #ax.plot(X[np.where(np.min(zs))][0], Y[np.where(np.min(zs))][0], np.min(zs_norm), marker='.', markersize=3)
 
     fig.colorbar(cset, shrink=0.5, aspect=5)
     #cset = ax.scatter(X_m[:,0],X_m[:,1], y_m, c='r', edgecolors='black')
     ax.clabel(cset, fontsize=9, inline=1)
 
-    costs_norm = (costs-np.min(costs, axis=0))/np.ptp(zs, axis=0)
+    costs_norm = (costs-np.min(costs, axis=0))/np.ptp(zs, axis=0) + 0.2
+
+    costs_norm = (costs-np.min(costs, axis=0))/np.ptp(zs, axis=0) + 0.05
 
     # for theta, cost in zip([thetas[-1]], [costs[-1]]):
     #      print(theta,cost)
     #print(thetas)
     ax.plot([t[1] for t in [thetas[-1]]], [t[2] for t in [thetas[-1]]], [costs_norm[-1]] , markerfacecolor='r', markeredgecolor='r', marker='o', markersize=7)
     ax.plot([t[1] for t in thetas], [t[2] for t in thetas], costs_norm   , marker='.', markersize=1)
-    #ax.plot([t[1] for t in thetas], [t[2] for t in thetas], 0 ,marker='.', markersize=2)
-    #for i in range(n):
+    ##########
+    ax.plot([t[1] for t in thetas], [t[2] for t in thetas], 0 ,marker='.', markersize=2)
+
+    #n = 1
+    
+    for i in range(n):
         #ax.plot([t[i] for t in thetas], [t[(i+1)%n] for t in thetas], costs_norm   , marker='.', markersize=2)
+        pass
 
     ax.set_xlabel('theta0', labelpad=3, fontsize=12,)
     ax.set_ylabel('theta1', labelpad=3, fontsize=12,)
     ax.set_zlabel('cost', labelpad=3, fontsize=12)
     #ax.set_zlim(0,np.max(costs_norm)+0.05)
-    ax.view_init(elev=0., azim=180)
+    #ax.view_init(elev=0., azim=180)
     #ax.set_title('X**{0:}:  alpha={1:.2E} -> R2={2:.4E}'.format(degree, df['alpha'].values[0], df['R2_score'].values[0]))
     plt.show()
 
